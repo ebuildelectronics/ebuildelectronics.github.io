@@ -1,0 +1,56 @@
+[
+  {
+    "id": "arduino-pro-mini-328-3-3v-8mhz",
+    "name": "Arduino Pro Mini 328 3.3V 8Mhz",
+    "category": "Arduino",
+    "price": 289,
+    "image": "images/placeholder-board.svg",
+    "description": "Microcontroller board based on the ATmega328. Suitable for compact Arduino projects.",
+    "specs": ["ATmega328", "3.3V regulator", "14 digital I/O", "8 analog pins", "Compact 18x33mm board"]
+  },
+  {
+    "id": "bluetooth-module-hc-05-master-slave-6pin",
+    "name": "Bluetooth Module HC-05 Master/Slave 6pin",
+    "category": "Wireless Modules",
+    "price": 0,
+    "image": "images/placeholder-board.svg",
+    "description": "HC-05 Bluetooth module for serial wireless communication projects.",
+    "specs": ["Bluetooth V2.0", "Master/slave support", "Default baud rate 9600", "UART communication"]
+  },
+  {
+    "id": "lcd-display-module-20x4-white-on-blue-i2c",
+    "name": "LCD Display Module 20x4 White on Blue I2C",
+    "category": "Displays",
+    "price": 0,
+    "image": "images/placeholder-display.svg",
+    "description": "20x4 character LCD display with I2C backpack for easy microcontroller connection.",
+    "specs": ["20x4 LCD", "I2C interface", "HD44780 compatible", "White on blue display"]
+  },
+  {
+    "id": "relay-module-1-channel-5v-10a",
+    "name": "Relay Module 1 Channel 5V 10A",
+    "category": "Modules",
+    "price": 0,
+    "image": "images/placeholder-board.svg",
+    "description": "Relay module for controlling higher-power devices from a microcontroller.",
+    "specs": ["1 channel relay", "5V control", "Up to 10A", "Terminal block output"]
+  },
+  {
+    "id": "pir-motion-sensor-hc-sr501-module",
+    "name": "PIR Motion Sensor HC-SR501 Module",
+    "category": "Sensors",
+    "price": 0,
+    "image": "images/placeholder-sensor.svg",
+    "description": "Infrared motion sensor module for automation and security projects.",
+    "specs": ["PIR motion detection", "Adjustable sensitivity", "Low power module", "Common for Arduino projects"]
+  },
+  {
+    "id": "mq135-air-quality-sensor-module",
+    "name": "MQ135 Air Quality Sensor Module",
+    "category": "Sensors",
+    "price": 0,
+    "image": "images/placeholder-sensor.svg",
+    "description": "Gas sensor module for detecting air quality related gases.",
+    "specs": ["Detects NH3, NOx, alcohol, benzene and smoke", "Analog output", "Low-cost sensor module"]
+  }
+]
