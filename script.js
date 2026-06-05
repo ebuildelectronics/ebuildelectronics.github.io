@@ -357,13 +357,24 @@ function buildOrderSummary(cart) {
   return lines.join("\n");
 }
 
+function buildCustomerDetailsText() {
+  const name = document.getElementById("customerName")?.value?.trim() || "";
+  const contact = document.getElementById("customerContact")?.value?.trim() || "";
+  const email = document.getElementById("customerEmail")?.value?.trim() || "";
+  const lines = [];
+  if (name) lines.push(`Name: ${name}`);
+  if (contact) lines.push(`Contact Number: ${contact}`);
+  if (email) lines.push(`Email: ${email}`);
+  return lines.length ? lines.join("\n") + "\n\n" : "";
+}
+
 function syncOrderForm(cart) {
   const form = document.getElementById("orderSubmitForm");
   if (!form) return;
 
   form.action = ORDER_FORM_ENDPOINT;
 
-  const orderText = document.getElementById("orderSummaryText")?.value || buildOrderSummary(cart);
+  const orderText = buildCustomerDetailsText() + (document.getElementById("orderSummaryText")?.value || buildOrderSummary(cart));
   const fields = {
     formCc: ORDER_EMAIL_CC,
     formSubject: "New Order Request - EBuild Electronics",
@@ -470,6 +481,10 @@ document.getElementById("orderSubmitForm")?.addEventListener("submit", event => 
     return;
   }
   syncOrderForm(cart);
+});
+
+document.querySelectorAll("#customerName, #customerContact, #customerEmail").forEach(el => {
+  el.addEventListener("input", () => syncOrderForm(getCart()));
 });
 
 document.getElementById("clearCartBtn")?.addEventListener("click", clearCart);

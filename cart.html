@@ -9,7 +9,7 @@
 <body>
   <header class="site-header">
     <a class="brand" href="index.html">e-Build Electronics</a>
-    <button id="menuBtn" class="menu-btn">Menu</button>
+    <button id="menuBtn" class="menu">Menu</button>
     <nav id="nav">
       <a href="index.html">Home</a>
       <a href="shop.html">Shop</a>
@@ -38,13 +38,11 @@
           <strong id="summaryTotal">₱0</strong>
         </div>
 
-        <p class="muted" style="margin-top:16px;line-height:1.5;">
+        <p class="muted order-note">
           Submit your order and our team will review your request and reply as soon as possible.
         </p>
 
-        <textarea id="orderSummaryText" name="Order Details" form="orderSubmitForm" aria-label="Order details" rows="9"></textarea>
-
-        <form id="orderSubmitForm" method="POST" class="actions">
+        <form id="orderSubmitForm" method="POST" class="order-form">
           <input type="hidden" name="_cc" id="formCc" value="official.recortech@gmail.com" />
           <input type="hidden" name="_subject" id="formSubject" value="New Order Request - EBuild Electronics" />
           <input type="hidden" name="_template" value="table" />
@@ -53,9 +51,19 @@
           <input type="hidden" name="Estimated Total" id="formEstimatedTotal" />
           <input type="hidden" name="Order Summary" id="formOrderDetails" />
 
-          <button type="submit" id="submitOrderBtn" class="btn primary">Submit Your Order</button>
-          <a class="btn" href="contact.html">Contact Us</a>
-          <button type="button" id="clearCartBtn" class="btn danger">Clear Cart</button>
+          <div class="customer-fields">
+            <label>Name<input type="text" id="customerName" name="Customer Name" autocomplete="name" required /></label>
+            <label>Contact Number<input type="tel" id="customerContact" name="Contact Number" autocomplete="tel" required /></label>
+            <label>Email<input type="email" id="customerEmail" name="Customer Email" autocomplete="email" required /></label>
+          </div>
+
+          <textarea id="orderSummaryText" name="Order Details" aria-label="Order details" rows="9"></textarea>
+
+          <div class="actions cart-summary-actions">
+            <button type="submit" id="submitOrderBtn" class="btn primary">Submit Your Order</button>
+            <a class="btn" href="contact.html">Contact Us</a>
+            <button type="button" id="clearCartBtn" class="btn danger">Clear Cart</button>
+          </div>
         </form>
       </aside>
     </section>
