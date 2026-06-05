@@ -2,13 +2,16 @@
 // Updated for 2 tabs:
 // PI Github = normal products
 // EC Github = component groups with values/variants
+// Cart update: minimalist Submit Your Order flow via FormSubmit
 
 const SHEET_ID = "1QPW-q9fBD0XzI7FwM9Z15rkXEaVh66j4-NsMeXJcwbA";
 const PI_GID = "1495508499";
 const EC_GID = "590322752";
 
-// Replace this with your Google Form / Jotform / Messenger link later.
-const ORDER_FORM_LINK = "YOUR_ORDER_FORM_LINK_HERE";
+// Order emails. FormSubmit sends to the main email and CCs the second email.
+const ORDER_EMAIL_TO = "ebuild.electronics@gmail.com";
+const ORDER_EMAIL_CC = "official.recortech@gmail.com";
+const ORDER_FORM_ENDPOINT = `https://formsubmit.co/${ORDER_EMAIL_TO}`;
 
 const IMAGE_ROOT = "images/eBuild Products/";
 const PLACEHOLDER_IMAGE = "images/placeholder-board.svg";
@@ -53,20 +56,10 @@ function getCellValue(cell) {
 }
 
 function rowsFromGoogleTable(table) {
-  let headers = table.cols.map(col => normalizeHeader(col.label));
-
-  // Safety fallback: some Google Sheet setups return A/B/C instead of row-1 labels.
-  // If that happens, use the first returned row as headers and the rest as data.
-  const weakHeaders = headers.every(h => /^[a-z]$/.test(h) || !h);
-  let dataRows = table.rows || [];
-  if (weakHeaders && dataRows.length) {
-    headers = dataRows[0].c.map(cell => normalizeHeader(getCellValue(cell)));
-    dataRows = dataRows.slice(1);
-  }
-
-  return dataRows.map(row => {
+  const headers = table.cols.map(col => normalizeHeader(col.label));
+  return table.rows.map(row => {
     const obj = {};
-    headers.forEach((header, i) => { if (header) obj[header] = getCellValue(row.c[i]); });
+    headers.forEach((header, i) => obj[header] = getCellValue(row.c[i]));
     return obj;
   });
 }
@@ -118,7 +111,7 @@ function normalizePIProducts(rows) {
       name,
       description: String(r["description"] || "").trim(),
       price: String(r["price"] || "").trim(),
-      category: String(r["product category"] || r["category"] || "Uncategorized").trim(),
+      category: String(r["product category"] || "Uncategorized").trim(),
       image: String(r["image"] || name).trim(),
       stock: String(r["stock"] || "").trim(),
       variants: []
@@ -130,7 +123,7 @@ function normalizeECProducts(rows) {
   const groups = new Map();
 
   rows.forEach((r, index) => {
-    const groupName = String(r["group name"] || r["product group"] || r["group"] || r["name"] || "").trim();
+    const groupName = String(r["group name"] || r["name"] || "").trim();
     const value = String(r["value"] || "").trim();
     if (!groupName || !value) return;
 
@@ -151,7 +144,7 @@ function normalizeECProducts(rows) {
         name: groupName,
         description: String(r["description"] || "").trim(),
         price: variant.price,
-        category: String(r["product category"] || r["category"] || "Components").trim(),
+        category: String(r["product category"] || "Components").trim(),
         image: String(r["image"] || groupName).trim(),
         stock: String(r["stock"] || "").trim(),
         variants: []
@@ -353,7 +346,7 @@ function cartTotal(cart) {
 
 function buildOrderSummary(cart) {
   if (!cart.length) return "Cart is empty.";
-  const lines = ["Hello e-Build Electronics, I would like to inquire/order these items:", ""];
+  const lines = ["Hello e-Build Electronics, I would like to order these items:", ""];
   cart.forEach((item, index) => {
     const price = parsePriceNumber(item.price);
     const lineTotal = price * Number(item.qty || 1);
@@ -362,6 +355,30 @@ function buildOrderSummary(cart) {
   });
   lines.push("", `Estimated Total: ${peso(cartTotal(cart))}`, "", "Name:", "Contact Number:", "Notes:");
   return lines.join("\n");
+}
+
+function syncOrderForm(cart) {
+  const form = document.getElementById("orderSubmitForm");
+  if (!form) return;
+
+  form.action = ORDER_FORM_ENDPOINT;
+
+  const orderText = document.getElementById("orderSummaryText")?.value || buildOrderSummary(cart);
+  const fields = {
+    formCc: ORDER_EMAIL_CC,
+    formSubject: "New Order Request - EBuild Electronics",
+    formOrderDetails: orderText,
+    formTotalItems: cart.reduce((sum, item) => sum + Number(item.qty || 0), 0),
+    formEstimatedTotal: peso(cartTotal(cart))
+  };
+
+  Object.entries(fields).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+  });
+
+  const submitBtn = document.getElementById("submitOrderBtn");
+  if (submitBtn) submitBtn.disabled = !cart.length;
 }
 
 function renderCartPage() {
@@ -374,11 +391,13 @@ function renderCartPage() {
 
   document.getElementById("summaryItems").textContent = totalQty;
   document.getElementById("summaryTotal").textContent = peso(total);
-  document.getElementById("orderSummaryText").value = buildOrderSummary(cart);
-  document.getElementById("checkoutFormBtn").href = ORDER_FORM_LINK;
+  const orderSummary = document.getElementById("orderSummaryText");
+  if (orderSummary && (!orderSummary.dataset.userEdited || !cart.length)) orderSummary.value = buildOrderSummary(cart);
+
+  syncOrderForm(cart);
 
   if (!cart.length) {
-    wrap.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Browse the shop and add products for quote/inquiry.</p><a class="btn primary" href="shop.html">Go to Shop</a></div>`;
+    wrap.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Browse the shop and add products for quote/order.</p><a class="btn primary" href="shop.html">Go to Shop</a></div>`;
     return;
   }
 
@@ -438,15 +457,19 @@ document.addEventListener("change", event => {
   if (priceBox) priceBox.textContent = peso(selected.dataset.price);
 });
 
-document.getElementById("copySummaryBtn")?.addEventListener("click", async () => {
-  const text = document.getElementById("orderSummaryText").value;
-  try {
-    await navigator.clipboard.writeText(text);
-    showToast("Order summary copied");
-  } catch {
-    document.getElementById("orderSummaryText").select();
-    showToast("Please press Ctrl+C to copy");
+document.getElementById("orderSummaryText")?.addEventListener("input", event => {
+  event.target.dataset.userEdited = "true";
+  syncOrderForm(getCart());
+});
+
+document.getElementById("orderSubmitForm")?.addEventListener("submit", event => {
+  const cart = getCart();
+  if (!cart.length) {
+    event.preventDefault();
+    showToast("Your cart is empty");
+    return;
   }
+  syncOrderForm(cart);
 });
 
 document.getElementById("clearCartBtn")?.addEventListener("click", clearCart);
@@ -534,7 +557,6 @@ renderCartPage();
 
 loadProducts().then(products => {
   EBUILD_PRODUCTS = products;
-  console.log("eBuild products loaded", products);
 
   const featured = document.getElementById("featuredProducts");
   if (featured) featured.innerHTML = products.slice(0, 6).map(card).join("");
@@ -549,23 +571,22 @@ loadProducts().then(products => {
   if (grid) {
     const cats = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
     const select = document.getElementById("categoryFilter");
-    cats.forEach(c => select?.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
+    cats.forEach(c => select.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
     const search = document.getElementById("searchInput");
 
     function render() {
-      const term = String(search?.value || "").toLowerCase();
-      const cat = select?.value || "all";
+      const term = search.value.toLowerCase();
+      const cat = select.value;
       const filtered = products.filter(p => {
         const variantText = (p.variants || []).map(v => `${v.id} ${v.value} ${v.price}`).join(" ");
         const haystack = `${p.id} ${p.name} ${p.description} ${p.category} ${variantText}`.toLowerCase();
-        const normalizedHaystack = haystack.replace(/resistor/g, "resistor resistors").replace(/capacitor/g, "capacitor capacitors");
-        return (cat === "all" || p.category === cat) && normalizedHaystack.includes(term);
+        return (cat === "all" || p.category === cat) && haystack.includes(term);
       });
       grid.innerHTML = filtered.map(card).join("") || "<p>No products found.</p>";
     }
 
-    search?.addEventListener("input", render);
-    select?.addEventListener("change", render);
+    search.addEventListener("input", render);
+    select.addEventListener("change", render);
     render();
   }
 

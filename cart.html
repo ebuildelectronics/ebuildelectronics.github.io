@@ -1,25 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cart | e-Build</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Summary | e-Build Electronics</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="cart-update.css" />
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><span class="logo">eB</span><span>e-Build Boards and Electronics</span></a>
-    <button class="menu" id="menuBtn" aria-label="Open menu">☰</button>
-    <nav id="nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="contact.html">Contact us</a><a href="pricelist.html">Pricelist</a><a href="cart.html">Cart <span id="cartCount" class="cart-count">0</span></a></nav>
+    <a class="brand" href="index.html">e-Build Electronics</a>
+    <button id="menuBtn" class="menu-btn">Menu</button>
+    <nav id="nav">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="cart.html">Cart <span id="cartCount">0</span></a>
+      <a href="contact.html">Contact</a>
+    </nav>
   </header>
-  <main>
-    <section class="page-head"><h1>Cart / Quote Summary</h1><p>This cart is for browsing and quotation only. Ordering will happen through your form, call, or message.</p></section>
-    <section class="cart-layout">
-      <div class="cart-items" id="cartItems"></div>
-      <aside class="cart-summary"><h2>Order Summary</h2><p>Review your selected products before contacting e-Build.</p><div class="summary-line"><span>Total Items</span><strong id="summaryItems">0</strong></div><div class="summary-line"><span>Estimated Total</span><strong id="summaryTotal">₱0</strong></div><textarea id="orderSummaryText" rows="12" readonly></textarea><div class="actions"><button class="btn primary" id="copySummaryBtn">Copy Summary</button><a class="btn" id="checkoutFormBtn" href="#" target="_blank">Open Order Form</a><a class="btn" href="contact.html">Contact Us</a></div><button class="btn danger" id="clearCartBtn">Clear Cart</button></aside>
+
+  <main class="cart-page minimal-cart-page">
+    <section class="order-summary-card">
+      <h1>Order Summary</h1>
+      <p class="summary-subtitle">Review your selected products before contacting e-Build.</p>
+
+      <div class="summary-row">
+        <span>Total Items</span>
+        <strong id="summaryItems">0</strong>
+      </div>
+      <div class="summary-row">
+        <span>Estimated Total</span>
+        <strong id="summaryTotal">₱0</strong>
+      </div>
+
+      <textarea id="orderSummaryText" name="Order Details" form="orderSubmitForm" aria-label="Order details"></textarea>
+
+      <p class="order-note">ⓘ Submit your order and our team will review your request and reply as soon as possible.</p>
+
+      <form id="orderSubmitForm" method="POST" class="order-actions">
+        <input type="hidden" name="_cc" id="formCc" value="official.recortech@gmail.com" />
+        <input type="hidden" name="_subject" id="formSubject" value="New Order Request - EBuild Electronics" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="hidden" name="_captcha" value="true" />
+        <input type="hidden" name="Total Items" id="formTotalItems" />
+        <input type="hidden" name="Estimated Total" id="formEstimatedTotal" />
+        <input type="hidden" name="Order Summary" id="formOrderDetails" />
+
+        <button type="submit" id="submitOrderBtn" class="btn primary submit-order-btn">✈ Submit Your Order</button>
+        <a class="btn contact-order-btn" href="contact.html">☏ Contact Us</a>
+        <button type="button" id="clearCartBtn" class="btn clear-order-btn">🗑 Clear Cart</button>
+      </form>
     </section>
+
+    <section id="cartItems" class="cart-items"></section>
   </main>
-  <footer>407-6843 / 0960-313-8672 • Contact Us</footer>
+
   <script src="script.js"></script>
 </body>
 </html>
