@@ -1,45 +1,55 @@
 // e-Build static catalog + Google Sheets JSONP loader
-// This version works on GitHub Pages and usually also works when opened directly by double-clicking index.html.
-const SHEET_ID = "1CcYDAVrPhewlClUBXXLjQHujbjrDflGdnOEZoT2-u_w";
-const SHEET_GID = "0";
+// Updated for 2 tabs:
+// PI Github = normal products
+// EC Github = component groups with values/variants
+
+const SHEET_ID = "1QPW-q9fBD0XzI7FwM9Z15rkXEaVh66j4-NsMeXJcwbA";
+const PI_GID = "1495508499";
+const EC_GID = "590322752";
 
 // Replace this with your Google Form / Jotform / Messenger link later.
 const ORDER_FORM_LINK = "YOUR_ORDER_FORM_LINK_HERE";
 
-// Your image folders should be uploaded like this:
-// images/eBuild Products/Arduino/Arduino Uno R3 DIP with cable.jpg
 const IMAGE_ROOT = "images/eBuild Products/";
 const PLACEHOLDER_IMAGE = "images/placeholder-board.svg";
-
-const peso = n => n && Number(String(n).replace(/[^0-9.]/g, '')) > 0
-  ? `₱${Number(String(n).replace(/[^0-9.]/g, '')).toLocaleString('en-PH')}`
-  : "Ask for price";
+const CART_KEY = "ebuild_cart_v1";
 
 const qs = new URLSearchParams(location.search);
 let EBUILD_PRODUCTS = [];
-const nav = document.getElementById('nav');
-document.getElementById('menuBtn')?.addEventListener('click', () => nav.classList.toggle('open'));
+
+const nav = document.getElementById("nav");
+document.getElementById("menuBtn")?.addEventListener("click", () => nav?.classList.toggle("open"));
+
+const peso = value => {
+  const n = parsePriceNumber(value);
+  return n > 0 ? `₱${n.toLocaleString("en-PH")}` : "Ask for price";
+};
 
 function slugify(text) {
-  return String(text || '')
+  return String(text || "")
     .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function escapeHtml(text) {
-  return String(text || '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch]));
+  return String(text || "").replace(/[&<>'"]/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;"
+  }[ch]));
 }
 
 function normalizeHeader(h) {
-  return String(h || '').trim().toLowerCase();
+  return String(h || "").trim().toLowerCase();
 }
 
 function getCellValue(cell) {
-  if (!cell) return '';
-  // Google Visualization cells may have formatted value f and raw value v.
-  return cell.f ?? cell.v ?? '';
+  if (!cell) return "";
+  return cell.f ?? cell.v ?? "";
 }
 
 function rowsFromGoogleTable(table) {
@@ -51,28 +61,13 @@ function rowsFromGoogleTable(table) {
   });
 }
 
-function normalizeProductsFromObjects(rows) {
-  return rows.map((r, rowIndex) => {
-    const name = String(r['name'] || '').trim();
-    const id = String(r['product id'] || '').trim() || slugify(name) || `product-${rowIndex + 1}`;
-    return {
-      id,
-      name,
-      description: String(r['description'] || '').trim(),
-      price: String(r['price'] || '').trim(),
-      category: String(r['product category'] || 'Uncategorized').trim(),
-      image: String(r['image'] || name).trim()
-    };
-  }).filter(p => p.id && p.name);
-}
-
-function loadGoogleSheetProducts() {
+function loadGoogleSheetRows(gid) {
   return new Promise((resolve, reject) => {
-    const callbackName = 'ebuildSheetCallback_' + Date.now();
+    const callbackName = "ebuildSheetCallback_" + gid + "_" + Date.now();
     const timeout = setTimeout(() => {
       cleanup();
-      reject(new Error('Google Sheet loading timed out.'));
-    }, 12000);
+      reject(new Error("Google Sheet loading timed out."));
+    }, 15000);
 
     function cleanup() {
       clearTimeout(timeout);
@@ -83,109 +78,161 @@ function loadGoogleSheetProducts() {
     window[callbackName] = response => {
       try {
         cleanup();
-        if (!response || response.status === 'error') {
-          throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheet returned an error.');
+        if (!response || response.status === "error") {
+          throw new Error(response?.errors?.[0]?.detailed_message || "Google Sheet returned an error.");
         }
-        const rows = rowsFromGoogleTable(response.table);
-        const products = normalizeProductsFromObjects(rows);
-        if (!products.length) throw new Error('No products found. Check header names in row 1.');
-        resolve(products);
+        resolve(rowsFromGoogleTable(response.table));
       } catch (err) {
         reject(err);
       }
     };
 
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.id = callbackName;
     script.onerror = () => {
       cleanup();
-      reject(new Error('Could not connect to Google Sheet. Check sharing permissions.'));
+      reject(new Error("Could not connect to Google Sheet. Check sharing permissions."));
     };
-    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&headers=1&tqx=responseHandler:${callbackName};out:json`;
+    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${gid}&headers=1&tqx=responseHandler:${callbackName};out:json`;
     document.body.appendChild(script);
+  });
+}
+
+function normalizePIProducts(rows) {
+  return rows.map((r, index) => {
+    const name = String(r["name"] || "").trim();
+    const id = String(r["product id"] || "").trim() || slugify(name) || `pi-${index + 1}`;
+    return {
+      id,
+      source: "PI",
+      name,
+      description: String(r["description"] || "").trim(),
+      price: String(r["price"] || "").trim(),
+      category: String(r["product category"] || "Uncategorized").trim(),
+      image: String(r["image"] || name).trim(),
+      stock: String(r["stock"] || "").trim(),
+      variants: []
+    };
+  }).filter(p => p.id && p.name);
+}
+
+function normalizeECProducts(rows) {
+  const groups = new Map();
+
+  rows.forEach((r, index) => {
+    const groupName = String(r["group name"] || r["name"] || "").trim();
+    const value = String(r["value"] || "").trim();
+    if (!groupName || !value) return;
+
+    const key = groupName.toLowerCase();
+    const variantId = String(r["product id"] || "").trim() || `ec-${index + 1}`;
+    const variant = {
+      id: variantId,
+      value,
+      price: String(r["price"] || "").trim(),
+      stock: String(r["stock"] || "").trim(),
+      sku: variantId
+    };
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        id: `EC-${slugify(groupName)}`,
+        source: "EC",
+        name: groupName,
+        description: String(r["description"] || "").trim(),
+        price: variant.price,
+        category: String(r["product category"] || "Components").trim(),
+        image: String(r["image"] || groupName).trim(),
+        stock: String(r["stock"] || "").trim(),
+        variants: []
+      });
+    }
+
+    const product = groups.get(key);
+    product.variants.push(variant);
+    if (!product.price && variant.price) product.price = variant.price;
+  });
+
+  return [...groups.values()].map(product => {
+    product.variants.sort((a, b) => a.value.localeCompare(b.value, undefined, { numeric: true }));
+    return product;
   });
 }
 
 async function loadProducts() {
   try {
-    return await loadGoogleSheetProducts();
+    const [piRows, ecRows] = await Promise.all([
+      loadGoogleSheetRows(PI_GID),
+      loadGoogleSheetRows(EC_GID)
+    ]);
+
+    const normalProducts = normalizePIProducts(piRows);
+    const componentProducts = normalizeECProducts(ecRows);
+    const products = [...normalProducts, ...componentProducts];
+
+    if (!products.length) throw new Error("No products found. Check header names in row 1.");
+    return products;
   } catch (err) {
-    console.warn('Google Sheet failed:', err);
+    console.warn("Google Sheet failed:", err);
     showLoadWarning(err.message || String(err));
-    // Fallback products keep the page from looking broken.
-    return [
-      {
-        id: 'demo-1',
-        name: 'Demo Product - Google Sheet not loaded',
-        description: 'The layout is working, but the live Google Sheet failed to load. Check sharing/publish settings or internet connection.',
-        price: '',
-        category: 'Demo',
-        image: ''
-      }
-    ];
+    return [{
+      id: "demo-1",
+      source: "Demo",
+      name: "Demo Product - Google Sheet not loaded",
+      description: "The layout is working, but the live Google Sheet failed to load. Check sharing/publish settings or internet connection.",
+      price: "",
+      category: "Demo",
+      image: "",
+      variants: []
+    }];
   }
 }
 
 function showLoadWarning(message) {
-  const box = document.createElement('div');
-  box.className = 'sheet-warning';
+  const box = document.createElement("div");
+  box.className = "sheet-warning";
   box.innerHTML = `<strong>Product loading notice:</strong> ${escapeHtml(message)}<br><span>Make sure the Google Sheet is shared as “Anyone with the link can view”.</span>`;
-  document.querySelector('main')?.prepend(box);
+  document.querySelector("main")?.prepend(box);
 }
 
 function shortDescription(text, max = 130) {
-  const clean = String(text || '').replace(/\s+/g, ' ').trim();
-  return clean.length > max ? clean.slice(0, max) + '…' : clean;
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  return clean.length > max ? clean.slice(0, max) + "…" : clean;
 }
 
 function getImageCandidates(product) {
-  const raw = String(product.image || product.name || '').trim();
-  const name = String(product.name || '').trim();
-  const category = String(product.category || '').trim();
+  const raw = String(product.image || product.name || "").trim();
+  const name = String(product.name || "").trim();
+  const category = String(product.category || "").trim();
   if (!raw && !name) return [PLACEHOLDER_IMAGE];
 
-  // GitHub Pages cannot scan folders, so this version checks predictable paths only.
-  // Main recommended path: images/eBuild Products/EXACT_IMAGE_NAME.jpg
-  // This ignores category folders by trying the flat folder first.
-  const cleanRaw = raw.replace(/\\/g, '/');
-  const filenameOnly = cleanRaw.split('/').pop();
+  const cleanRaw = raw.replace(/\\/g, "/");
+  const filenameOnly = cleanRaw.split("/").pop();
   const bases = [];
+  const addBase = base => { if (base && !bases.includes(base)) bases.push(base); };
 
-  function addBase(base) {
-    if (base && !bases.includes(base)) bases.push(base);
-  }
-
-  // 1) Flat folder match by Image column / filename.
   addBase(filenameOnly);
-
-  // 2) Flat folder match by Product Name, useful when image name is same as product name.
   addBase(name);
-
-  // 3) Backward-compatible fallbacks for old category-folder setup.
-  if (cleanRaw.includes('/')) addBase(cleanRaw);
+  if (cleanRaw.includes("/")) addBase(cleanRaw);
   if (category && filenameOnly) addBase(`${category}/${filenameOnly}`);
 
   const paths = [];
   bases.forEach(base => {
     const hasExt = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(base);
-    if (hasExt) {
-      paths.push(`${IMAGE_ROOT}${base}`);
-    } else {
-      ['jpg', 'jpeg', 'png', 'webp'].forEach(ext => paths.push(`${IMAGE_ROOT}${base}.${ext}`));
-    }
+    if (hasExt) paths.push(`${IMAGE_ROOT}${base}`);
+    else ["jpg", "jpeg", "png", "webp"].forEach(ext => paths.push(`${IMAGE_ROOT}${base}.${ext}`));
   });
-
   paths.push(PLACEHOLDER_IMAGE);
   return paths.map(p => encodeURI(p));
 }
 
-function imageTag(product, className = '') {
+function imageTag(product, className = "") {
   const candidates = getImageCandidates(product);
-  return `<img ${className ? `class="${className}"` : ''} src="${candidates[0]}" data-img-index="0" data-img-list='${JSON.stringify(candidates)}' alt="${escapeHtml(product.name)}" onerror="nextImage(this)">`;
+  return `<img class="${className}" src="${candidates[0]}" alt="${escapeHtml(product.name)}" data-img-list='${escapeHtml(JSON.stringify(candidates))}' data-img-index="0" onerror="nextImage(this)">`;
 }
 
 function nextImage(img) {
-  const list = JSON.parse(img.dataset.imgList || '[]');
+  const list = JSON.parse(img.dataset.imgList || "[]");
   let index = Number(img.dataset.imgIndex || 0) + 1;
   if (index < list.length) {
     img.dataset.imgIndex = index;
@@ -193,17 +240,30 @@ function nextImage(img) {
   }
 }
 
-
-// ---------------- Simple static cart ----------------
-const CART_KEY = 'ebuild_cart_v1';
-
 function parsePriceNumber(value) {
-  const n = Number(String(value || '').replace(/[^0-9.]/g, ''));
+  const n = Number(String(value || "").replace(/[^0-9.]/g, ""));
   return Number.isFinite(n) ? n : 0;
 }
 
+function getSelectedVariant(productId) {
+  const select = document.querySelector(`[data-variant-select][data-product-id="${CSS.escape(String(productId))}"]`);
+  const product = EBUILD_PRODUCTS.find(p => String(p.id) === String(productId));
+  if (!product?.variants?.length) return null;
+  return product.variants.find(v => String(v.id) === String(select?.value)) || product.variants[0];
+}
+
+function variantSelectHtml(product) {
+  if (!product.variants?.length) return "";
+  return `
+    <label class="variant-label">Value</label>
+    <select class="variant-select" data-variant-select data-product-id="${escapeHtml(product.id)}">
+      ${product.variants.map(v => `<option value="${escapeHtml(v.id)}" data-price="${escapeHtml(v.price)}">${escapeHtml(v.value)} - ${peso(v.price)}</option>`).join("")}
+    </select>
+  `;
+}
+
 function getCart() {
-  try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]').map(normalizeCartProductWithQty); }
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]").map(normalizeCartProductWithQty); }
   catch { return []; }
 }
 
@@ -214,36 +274,48 @@ function saveCart(cart) {
 
 function updateCartCount() {
   const count = getCart().reduce((sum, item) => sum + Number(item.qty || 0), 0);
-  document.querySelectorAll('#cartCount').forEach(el => el.textContent = count);
+  document.querySelectorAll("#cartCount").forEach(el => el.textContent = count);
 }
 
 function normalizeCartProduct(product = {}) {
-  const name = product.name || product.Name || product['Product Name'] || product.title || product.product || '';
-  const id = product.id || product.ID || product['Product ID'] || product.productId || slugify(name);
+  const name = product.name || product.Name || product["Product Name"] || product.title || product.product || "";
+  const id = product.id || product.ID || product["Product ID"] || product.productId || slugify(name);
   return {
     id: String(id || slugify(name) || Date.now()).trim(),
-    name: String(name || 'Unnamed product').trim(),
-    category: String(product.category || product.Category || product['Product Category'] || '').trim(),
-    price: String(product.price || product.Price || '').trim(),
-    image: String(product.image || product.Image || name || '').trim()
+    name: String(name || "Unnamed product").trim(),
+    category: String(product.category || product.Category || product["Product Category"] || "").trim(),
+    price: String(product.price || product.Price || "").trim(),
+    image: String(product.image || product.Image || name || "").trim(),
+    variantValue: String(product.variantValue || "").trim(),
+    sku: String(product.sku || "").trim()
   };
+}
+
+function normalizeCartProductWithQty(item = {}) {
+  return { ...normalizeCartProduct(item), qty: Math.max(1, Number(item.qty || 1)) };
+}
+
+function makeCartProduct(product, variant = null) {
+  if (!variant) return normalizeCartProduct(product);
+  return normalizeCartProduct({
+    id: `${product.id}__${variant.id}`,
+    name: `${product.name} - ${variant.value}`,
+    category: product.category,
+    price: variant.price,
+    image: product.image,
+    variantValue: variant.value,
+    sku: variant.sku || variant.id
+  });
 }
 
 function addToCart(product, qty = 1) {
   product = normalizeCartProduct(product);
   const cart = getCart().map(normalizeCartProductWithQty);
   const existing = cart.find(item => String(item.id) === String(product.id));
-  if (existing) {
-    existing.qty = Number(existing.qty || 1) + qty;
-  } else {
-    cart.push({ ...product, qty });
-  }
+  if (existing) existing.qty = Number(existing.qty || 1) + qty;
+  else cart.push({ ...product, qty });
   saveCart(cart);
   showToast(`${product.name} added to cart`);
-}
-
-function normalizeCartProductWithQty(item = {}) {
-  return { ...normalizeCartProduct(item), qty: Math.max(1, Number(item.qty || 1)) };
 }
 
 function removeFromCart(id) {
@@ -270,163 +342,221 @@ function cartTotal(cart) {
 }
 
 function buildOrderSummary(cart) {
-  if (!cart.length) return 'Cart is empty.';
-  const lines = ['Hello e-Build Electronics, I would like to inquire/order these items:', ''];
+  if (!cart.length) return "Cart is empty.";
+  const lines = ["Hello e-Build Electronics, I would like to inquire/order these items:", ""];
   cart.forEach((item, index) => {
     const price = parsePriceNumber(item.price);
     const lineTotal = price * Number(item.qty || 1);
-    lines.push(`${index + 1}. ${item.name} x${item.qty} - ${price ? peso(lineTotal) : 'Ask for price'}`);
+    const sku = item.sku ? ` [${item.sku}]` : "";
+    lines.push(`${index + 1}. ${item.name}${sku} x${item.qty} - ${price ? peso(lineTotal) : "Ask for price"}`);
   });
-  lines.push('', `Estimated Total: ${peso(cartTotal(cart))}`);
-  lines.push('', 'Name:', 'Contact Number:', 'Notes:');
-  return lines.join('\n');
+  lines.push("", `Estimated Total: ${peso(cartTotal(cart))}`, "", "Name:", "Contact Number:", "Notes:");
+  return lines.join("\n");
 }
 
 function renderCartPage() {
-  const wrap = document.getElementById('cartItems');
+  const wrap = document.getElementById("cartItems");
   if (!wrap) return;
+
   const cart = getCart();
   const totalQty = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
   const total = cartTotal(cart);
-  document.getElementById('summaryItems').textContent = totalQty;
-  document.getElementById('summaryTotal').textContent = peso(total);
-  document.getElementById('orderSummaryText').value = buildOrderSummary(cart);
-  document.getElementById('checkoutFormBtn').href = ORDER_FORM_LINK;
+
+  document.getElementById("summaryItems").textContent = totalQty;
+  document.getElementById("summaryTotal").textContent = peso(total);
+  document.getElementById("orderSummaryText").value = buildOrderSummary(cart);
+  document.getElementById("checkoutFormBtn").href = ORDER_FORM_LINK;
 
   if (!cart.length) {
-    wrap.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p class="muted">Browse the shop and add products for quote/inquiry.</p><a class="btn primary" href="shop.html">Go to Shop</a></div>`;
+    wrap.innerHTML = `<div class="empty-cart"><h2>Your cart is empty</h2><p>Browse the shop and add products for quote/inquiry.</p><a class="btn primary" href="shop.html">Go to Shop</a></div>`;
     return;
   }
 
-  wrap.innerHTML = cart.map(item => `<article class="cart-item">
-    ${imageTag(item, 'cart-img')}
-    <div class="cart-info">
-      <p class="eyebrow">${escapeHtml(item.category || '')}</p>
-      <h3><a href="product.html?id=${encodeURIComponent(item.id)}">${escapeHtml(item.name)}</a></h3>
-      <p>${peso(item.price)}</p>
+  wrap.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      ${imageTag(item, "cart-img")}
+      <div class="cart-info">
+        <span>${escapeHtml(item.category || "")}</span>
+        <h3><a href="product.html?id=${encodeURIComponent(String(item.id).split("__")[0])}">${escapeHtml(item.name)}</a></h3>
+        ${item.sku ? `<small>SKU: ${escapeHtml(item.sku)}</small>` : ""}
+        <p>${peso(item.price)}</p>
+      </div>
+      <div class="qty-box">
+        <label>Qty</label>
+        <input type="number" min="1" value="${item.qty}" onchange="updateCartQty('${escapeHtml(item.id)}', this.value)">
+      </div>
+      <div class="cart-line-total">${peso(parsePriceNumber(item.price) * Number(item.qty || 1))}</div>
+      <button class="remove-btn" onclick="removeFromCart('${escapeHtml(item.id)}')">Remove</button>
     </div>
-    <div class="qty-box">
-      <label>Qty</label>
-      <input type="number" min="1" value="${Number(item.qty || 1)}" onchange="updateCartQty('${escapeHtml(item.id)}', this.value)">
-    </div>
-    <div class="cart-line-total">${peso(parsePriceNumber(item.price) * Number(item.qty || 1))}</div>
-    <button class="remove-btn" onclick="removeFromCart('${escapeHtml(item.id)}')">Remove</button>
-  </article>`).join('');
+  `).join("");
 }
 
 function showToast(message) {
-  let toast = document.getElementById('toast');
+  let toast = document.getElementById("toast");
   if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'toast';
-    toast.className = 'toast';
+    toast = document.createElement("div");
+    toast.id = "toast";
+    toast.className = "toast";
     document.body.appendChild(toast);
   }
   toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 1800);
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1800);
 }
 
-document.addEventListener('click', event => {
-  const btn = event.target.closest('[data-add-to-cart]');
+document.addEventListener("click", event => {
+  const btn = event.target.closest("[data-add-to-cart]");
   if (!btn) return;
   event.preventDefault();
+
   const id = btn.dataset.productId;
   const product = EBUILD_PRODUCTS.find(p => String(p.id) === String(id));
   if (!product) {
-    showToast('Product data not found. Please refresh the page.');
+    showToast("Product data not found. Please refresh the page.");
     return;
   }
-  addToCart(product, 1);
+
+  const variant = getSelectedVariant(id);
+  addToCart(makeCartProduct(product, variant), 1);
 });
 
-document.getElementById('copySummaryBtn')?.addEventListener('click', async () => {
-  const text = document.getElementById('orderSummaryText').value;
+document.addEventListener("change", event => {
+  const select = event.target.closest("[data-variant-select]");
+  if (!select) return;
+  const selected = select.options[select.selectedIndex];
+  const priceBox = document.querySelector(`[data-price-box][data-product-id="${CSS.escape(select.dataset.productId)}"]`);
+  if (priceBox) priceBox.textContent = peso(selected.dataset.price);
+});
+
+document.getElementById("copySummaryBtn")?.addEventListener("click", async () => {
+  const text = document.getElementById("orderSummaryText").value;
   try {
     await navigator.clipboard.writeText(text);
-    showToast('Order summary copied');
+    showToast("Order summary copied");
   } catch {
-    document.getElementById('orderSummaryText').select();
-    showToast('Please press Ctrl+C to copy');
+    document.getElementById("orderSummaryText").select();
+    showToast("Please press Ctrl+C to copy");
   }
 });
 
-document.getElementById('clearCartBtn')?.addEventListener('click', clearCart);
+document.getElementById("clearCartBtn")?.addEventListener("click", clearCart);
+
+function card(p) {
+  const firstVariant = p.variants?.[0];
+  const priceToShow = firstVariant ? firstVariant.price : p.price;
+  return `
+    <article class="product-card">
+      <a href="product.html?id=${encodeURIComponent(p.id)}">${imageTag(p)}</a>
+      <div class="product-info">
+        <span>${escapeHtml(p.category)}</span>
+        <h3><a href="product.html?id=${encodeURIComponent(p.id)}">${escapeHtml(p.name)}</a></h3>
+        <p class="card-desc">${escapeHtml(shortDescription(p.description))}</p>
+        ${variantSelectHtml(p)}
+        <h3 class="price" data-price-box data-product-id="${escapeHtml(p.id)}">${peso(priceToShow)}</h3>
+        <div class="card-actions">
+          <a class="btn small" href="product.html?id=${encodeURIComponent(p.id)}">Details</a>
+          <button class="btn small primary" data-add-to-cart data-product-id="${escapeHtml(p.id)}">Add to Cart</button>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderProductDetail(products) {
+  const detail = document.getElementById("productDetail");
+  if (!detail) return;
+
+  const wanted = qs.get("id");
+  const p = products.find(x => String(x.id) === String(wanted)) || products[0];
+  const firstVariant = p.variants?.[0];
+  const priceToShow = firstVariant ? firstVariant.price : p.price;
+
+  document.title = `${p.name} | e-Build`;
+  detail.innerHTML = `
+    <div>${imageTag(p, "detail-img")}</div>
+    <div>
+      <p class="muted">${escapeHtml(p.category)} • ${escapeHtml(p.id)}</p>
+      <h1>${escapeHtml(p.name)}</h1>
+      ${variantSelectHtml(p)}
+      <h2 data-price-box data-product-id="${escapeHtml(p.id)}">${peso(priceToShow)}</h2>
+      <p class="description">${escapeHtml(p.description).replace(/\n/g, "<br>")}</p>
+      <div class="actions">
+        <button class="btn primary" data-add-to-cart data-product-id="${escapeHtml(p.id)}">Add to Cart</button>
+        <a class="btn" href="cart.html">View Cart</a>
+        <a class="btn" href="contact.html">Contact Us</a>
+      </div>
+      <p class="muted">7-day Warranty • Shipping: Maxim COD</p>
+    </div>
+  `;
+}
+
+function renderPriceTable(products) {
+  const priceTable = document.getElementById("priceTable");
+  if (!priceTable) return;
+
+  const rows = [];
+  products.forEach(p => {
+    if (p.variants?.length) {
+      p.variants.forEach(v => rows.push({
+        id: `${p.id}__${v.id}`,
+        productId: p.id,
+        name: `${p.name} - ${v.value}`,
+        category: p.category,
+        price: v.price
+      }));
+    } else {
+      rows.push({ id: p.id, productId: p.id, name: p.name, category: p.category, price: p.price });
+    }
+  });
+
+  priceTable.innerHTML = rows.map(row => `
+    <tr>
+      <td><a href="product.html?id=${encodeURIComponent(row.productId)}">${escapeHtml(row.name)}</a></td>
+      <td>${escapeHtml(row.category)}</td>
+      <td>${peso(row.price)}</td>
+      <td><a class="btn small" href="product.html?id=${encodeURIComponent(row.productId)}">View</a></td>
+    </tr>
+  `).join("");
+}
 
 updateCartCount();
 renderCartPage();
 
-function card(p) {
-  return `<article class="product-card">
-    <a href="product.html?id=${encodeURIComponent(p.id)}">${imageTag(p)}</a>
-    <div class="product-info">
-      <span>${escapeHtml(p.category)}</span>
-      <h3><a href="product.html?id=${encodeURIComponent(p.id)}">${escapeHtml(p.name)}</a></h3>
-      <p class="card-desc">${escapeHtml(shortDescription(p.description))}</p>
-      <strong>${peso(p.price)}</strong>
-      <div class="card-actions">
-        <a class="btn small" href="product.html?id=${encodeURIComponent(p.id)}">Details</a>
-        <button class="btn small primary" data-add-to-cart data-product-id="${escapeHtml(p.id)}">Add to Cart</button>
-      </div>
-    </div>
-  </article>`;
-}
-
 loadProducts().then(products => {
   EBUILD_PRODUCTS = products;
-  const featured = document.getElementById('featuredProducts');
-  if (featured) featured.innerHTML = products.slice(0, 6).map(card).join('');
 
-  const count = document.getElementById('productCount');
-  if (count) count.textContent = `${products.length} products loaded from Google Sheets`;
+  const featured = document.getElementById("featuredProducts");
+  if (featured) featured.innerHTML = products.slice(0, 6).map(card).join("");
 
-  const grid = document.getElementById('productGrid');
+  const count = document.getElementById("productCount");
+  if (count) {
+    const variantCount = products.reduce((sum, p) => sum + (p.variants?.length || 0), 0);
+    count.textContent = `${products.length} product groups loaded • ${variantCount} component values`;
+  }
+
+  const grid = document.getElementById("productGrid");
   if (grid) {
     const cats = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
-    const select = document.getElementById('categoryFilter');
-    cats.forEach(c => select.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
-    const search = document.getElementById('searchInput');
+    const select = document.getElementById("categoryFilter");
+    cats.forEach(c => select.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
+    const search = document.getElementById("searchInput");
+
     function render() {
       const term = search.value.toLowerCase();
       const cat = select.value;
-      const filtered = products.filter(p =>
-        (cat === 'all' || p.category === cat) &&
-        (`${p.id} ${p.name} ${p.description} ${p.category}`.toLowerCase().includes(term))
-      );
-      grid.innerHTML = filtered.map(card).join('') || '<p>No products found.</p>';
+      const filtered = products.filter(p => {
+        const variantText = (p.variants || []).map(v => `${v.id} ${v.value} ${v.price}`).join(" ");
+        const haystack = `${p.id} ${p.name} ${p.description} ${p.category} ${variantText}`.toLowerCase();
+        return (cat === "all" || p.category === cat) && haystack.includes(term);
+      });
+      grid.innerHTML = filtered.map(card).join("") || "<p>No products found.</p>";
     }
-    search.addEventListener('input', render);
-    select.addEventListener('change', render);
+
+    search.addEventListener("input", render);
+    select.addEventListener("change", render);
     render();
   }
 
-  const detail = document.getElementById('productDetail');
-  if (detail) {
-    const wanted = qs.get('id');
-    const p = products.find(x => String(x.id) === String(wanted)) || products[0];
-    document.title = `${p.name} | e-Build`;
-    detail.innerHTML = `<div>${imageTag(p, 'detail-img')}</div>
-      <div>
-        <p class="eyebrow">${escapeHtml(p.category)} • ${escapeHtml(p.id)}</p>
-        <h1>${escapeHtml(p.name)}</h1>
-        <h2>${peso(p.price)}</h2>
-        <div class="description">${escapeHtml(p.description).replace(/\n/g, '<br>')}</div>
-        <div class="actions">
-          <button class="btn primary" data-add-to-cart data-product-id="${escapeHtml(p.id)}">Add to Cart</button>
-          <a class="btn" href="cart.html">View Cart</a>
-          <a class="btn" href="contact.html">Contact Us</a>
-        </div>
-        <p class="muted">7-day Warranty • Shipping: Maxim COD</p>
-      </div>`;
-  }
-
-  const priceTable = document.getElementById('priceTable');
-  if (priceTable) {
-    priceTable.innerHTML = products.map(p => `<tr>
-      <td><a href="product.html?id=${encodeURIComponent(p.id)}">${escapeHtml(p.name)}</a></td>
-      <td>${escapeHtml(p.category)}</td>
-      <td>${peso(p.price)}</td>
-      <td><button class="link-button" data-add-to-cart data-product-id="${escapeHtml(p.id)}">Add</button></td>
-    </tr>`).join('');
-  }
+  renderProductDetail(products);
+  renderPriceTable(products);
 });
