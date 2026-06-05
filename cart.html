@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Summary | e-Build Electronics</title>
+  <title>Cart | e-Build Electronics</title>
   <link rel="stylesheet" href="style.css" />
-  
 </head>
 <body>
   <header class="site-header">
@@ -19,40 +18,47 @@
     </nav>
   </header>
 
-  <main class="cart-page minimal-cart-page">
-    <section class="order-summary-card">
-      <h1>Order Summary</h1>
-      <p class="summary-subtitle">Review your selected products before contacting e-Build.</p>
-
-      <div class="summary-row">
-        <span>Total Items</span>
-        <strong id="summaryItems">0</strong>
-      </div>
-      <div class="summary-row">
-        <span>Estimated Total</span>
-        <strong id="summaryTotal">₱0</strong>
-      </div>
-
-      <textarea id="orderSummaryText" name="Order Details" form="orderSubmitForm" aria-label="Order details"></textarea>
-
-      <p class="order-note">ⓘ Submit your order and our team will review your request and reply as soon as possible.</p>
-
-      <form id="orderSubmitForm" method="POST" class="order-actions">
-        <input type="hidden" name="_cc" id="formCc" value="official.recortech@gmail.com" />
-        <input type="hidden" name="_subject" id="formSubject" value="New Order Request - EBuild Electronics" />
-        <input type="hidden" name="_template" value="table" />
-        <input type="hidden" name="_captcha" value="true" />
-        <input type="hidden" name="Total Items" id="formTotalItems" />
-        <input type="hidden" name="Estimated Total" id="formEstimatedTotal" />
-        <input type="hidden" name="Order Summary" id="formOrderDetails" />
-
-        <button type="submit" id="submitOrderBtn" class="btn primary submit-order-btn">✈ Submit Your Order</button>
-        <a class="btn contact-order-btn" href="contact.html">☏ Contact Us</a>
-        <button type="button" id="clearCartBtn" class="btn clear-order-btn">🗑 Clear Cart</button>
-      </form>
+  <main>
+    <section class="page-head">
+      <h1>Your Cart</h1>
+      <p>Review your selected products before submitting your order.</p>
     </section>
 
-    <section id="cartItems" class="cart-items"></section>
+    <section class="cart-layout">
+      <div id="cartItems" class="cart-items"></div>
+
+      <aside class="cart-summary">
+        <h2>Order Summary</h2>
+        <div class="summary-line">
+          <span>Total Items</span>
+          <strong id="summaryItems">0</strong>
+        </div>
+        <div class="summary-line">
+          <span>Estimated Total</span>
+          <strong id="summaryTotal">₱0</strong>
+        </div>
+
+        <p class="muted" style="margin-top:16px;line-height:1.5;">
+          Submit your order and our team will review your request and reply as soon as possible.
+        </p>
+
+        <textarea id="orderSummaryText" name="Order Details" form="orderSubmitForm" aria-label="Order details" rows="9"></textarea>
+
+        <form id="orderSubmitForm" method="POST" class="actions">
+          <input type="hidden" name="_cc" id="formCc" value="official.recortech@gmail.com" />
+          <input type="hidden" name="_subject" id="formSubject" value="New Order Request - EBuild Electronics" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="true" />
+          <input type="hidden" name="Total Items" id="formTotalItems" />
+          <input type="hidden" name="Estimated Total" id="formEstimatedTotal" />
+          <input type="hidden" name="Order Summary" id="formOrderDetails" />
+
+          <button type="submit" id="submitOrderBtn" class="btn primary">Submit Your Order</button>
+          <a class="btn" href="contact.html">Contact Us</a>
+          <button type="button" id="clearCartBtn" class="btn danger">Clear Cart</button>
+        </form>
+      </aside>
+    </section>
   </main>
 
   <script src="script.js"></script>

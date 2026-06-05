@@ -1,19 +1,10 @@
-eBuild Electronics website update
+Upload/replace these files in your GitHub Pages repo root:
 
-Updated files:
-1. script.js
-   - Adds the minimalist Submit Your Order flow.
-   - Sends order details through FormSubmit to ebuild.electronics@gmail.com.
-   - CCs official.recortech@gmail.com.
-   - Keeps Contact Us and Clear Cart.
-
-2. cart.html
-   - Replaces the old Copy Summary/Open Order Form layout with:
-     Submit Your Order / Contact Us / Clear Cart.
-
-3. cart-update.css
-   - Minimalist styling for the new order summary page.
+1. cart.html
+2. script.js
+3. style.css
 
 Important:
-- On the first test submission, FormSubmit may send an activation email to ebuild.electronics@gmail.com.
-- Open that activation email and confirm it once. After that, website orders should go through normally.
+- Delete cart-update.css from the repo or leave it unused.
+- cart.html no longer loads cart-update.css.
+- This restores the old cart format and keeps Submit Your Order, Contact Us, and Clear Cart.
