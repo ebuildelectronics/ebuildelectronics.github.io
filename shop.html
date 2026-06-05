@@ -1,1 +1,23 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shop | e-Build</title><link rel="stylesheet" href="style.css"></head><body><header class="site-header"><a class="brand" href="index.html"><span class="logo">eB</span><span>e-Build Boards and Electronics</span></a><button class="menu" id="menuBtn">☰</button><nav id="nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="contact.html">Contact us</a><a href="pricelist.html">Pricelist</a><a href="cart.html">Cart <span id="cartCount" class="cart-count">0</span></a></nav></header><main><section class="page-head"><h1>Shop</h1><p>Search and filter products loaded directly from your Google Sheet. <span id="productCount"></span></p></section><section class="toolbar"><input id="searchInput" type="search" placeholder="Search product name..."><select id="categoryFilter"><option value="all">All Categories</option></select></section><div class="grid" id="productGrid"></div></main><footer>407-6843 / 0960-313-8672 • Contact Us</footer><script src="script.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop | e-Build</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="logo">eB</span><span>e-Build Boards and Electronics</span></a>
+    <button class="menu" id="menuBtn" aria-label="Open menu">☰</button>
+    <nav id="nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="contact.html">Contact us</a><a href="pricelist.html">Pricelist</a><a href="cart.html">Cart <span id="cartCount" class="cart-count">0</span></a></nav>
+  </header>
+  <main>
+    <section class="page-head"><h1>Shop</h1><p>Search and filter products loaded directly from your Google Sheet.</p><p id="productCount" class="muted">Loading products…</p></section>
+    <section class="toolbar"><input id="searchInput" type="search" placeholder="Search products, resistor values, capacitor values…"><select id="categoryFilter"><option value="all">All Categories</option></select></section>
+    <section class="grid" id="productGrid"></section>
+  </main>
+  <footer>407-6843 / 0960-313-8672 • Contact Us</footer>
+  <script src="script.js"></script>
+</body>
+</html>
