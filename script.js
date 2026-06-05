@@ -52,6 +52,15 @@ function getCellValue(cell) {
   return cell.f ?? cell.v ?? "";
 }
 
+function getField(row, aliases, fallback = "") {
+  for (const alias of aliases) {
+    const key = normalizeHeader(alias);
+    const value = row[key];
+    if (value !== undefined && String(value).trim() !== "") return value;
+  }
+  return fallback;
+}
+
 function rowsFromGoogleTable(table) {
   const headers = table.cols.map(col => normalizeHeader(col.label));
   return table.rows.map(row => {
@@ -100,17 +109,17 @@ function loadGoogleSheetRows(gid) {
 
 function normalizePIProducts(rows) {
   return rows.map((r, index) => {
-    const name = String(r["name"] || "").trim();
-    const id = String(r["product id"] || "").trim() || slugify(name) || `pi-${index + 1}`;
+    const name = String(getField(r, ["name", "product name", "item name"])).trim();
+    const id = String(getField(r, ["product id", "id", "sku"])).trim() || slugify(name) || `pi-${index + 1}`;
     return {
       id,
       source: "PI",
       name,
-      description: String(r["description"] || "").trim(),
-      price: String(r["price"] || "").trim(),
-      category: String(r["product category"] || "Uncategorized").trim(),
-      image: String(r["image"] || name).trim(),
-      stock: String(r["stock"] || "").trim(),
+      description: String(getField(r, ["description", "details"])).trim(),
+      price: String(getField(r, ["price", "selling price", "srp"])).trim(),
+      category: String(getField(r, ["product category", "category", "categories"], "Uncategorized")).trim(),
+      image: String(getField(r, ["image", "image file", "filename", "photo"], name)).trim(),
+      stock: String(getField(r, ["stock", "stocks", "qty", "quantity"])).trim(),
       variants: []
     };
   }).filter(p => p.id && p.name);
@@ -120,30 +129,31 @@ function normalizeECProducts(rows) {
   const groups = new Map();
 
   rows.forEach((r, index) => {
-    const groupName = String(r["group name"] || r["name"] || "").trim();
-    const value = String(r["value"] || "").trim();
+    const groupName = String(getField(r, ["group name", "product group", "group", "name", "product name"])).trim();
+    const value = String(getField(r, ["value", "variant", "option", "rating", "resistance", "capacitance"])).trim();
     if (!groupName || !value) return;
 
-    const key = groupName.toLowerCase();
-    const variantId = String(r["product id"] || "").trim() || `ec-${index + 1}`;
+    const category = String(getField(r, ["product category", "category", "categories"], "Components")).trim();
+    const key = `${category}__${groupName}`.toLowerCase();
+    const variantId = String(getField(r, ["product id", "id", "sku"])).trim() || `ec-${index + 1}`;
     const variant = {
       id: variantId,
       value,
-      price: String(r["price"] || "").trim(),
-      stock: String(r["stock"] || "").trim(),
+      price: String(getField(r, ["price", "selling price", "srp"])).trim(),
+      stock: String(getField(r, ["stock", "stocks", "qty", "quantity"])).trim(),
       sku: variantId
     };
 
     if (!groups.has(key)) {
       groups.set(key, {
-        id: `EC-${slugify(groupName)}`,
+        id: `EC-${slugify(category)}-${slugify(groupName)}`,
         source: "EC",
         name: groupName,
-        description: String(r["description"] || "").trim(),
+        description: String(getField(r, ["description", "details"])).trim(),
         price: variant.price,
-        category: String(r["product category"] || "Components").trim(),
-        image: String(r["image"] || groupName).trim(),
-        stock: String(r["stock"] || "").trim(),
+        category,
+        image: String(getField(r, ["image", "image file", "filename", "photo"], groupName)).trim(),
+        stock: String(getField(r, ["stock", "stocks", "qty", "quantity"])).trim(),
         variants: []
       });
     }
@@ -198,6 +208,16 @@ function showLoadWarning(message) {
 function shortDescription(text, max = 130) {
   const clean = String(text || "").replace(/\s+/g, " ").trim();
   return clean.length > max ? clean.slice(0, max) + "…" : clean;
+}
+
+function normalizeSearchText(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/capacitors/g, "capacitor")
+    .replace(/resistors/g, "resistor")
+    .replace(/ohms/g, "ohm")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function getImageCandidates(product) {
@@ -542,11 +562,11 @@ loadProducts().then(products => {
     const search = document.getElementById("searchInput");
 
     function render() {
-      const term = search.value.toLowerCase();
+      const term = normalizeSearchText(search.value);
       const cat = select.value;
       const filtered = products.filter(p => {
-        const variantText = (p.variants || []).map(v => `${v.id} ${v.value} ${v.price}`).join(" ");
-        const haystack = `${p.id} ${p.name} ${p.description} ${p.category} ${variantText}`.toLowerCase();
+        const variantText = (p.variants || []).map(v => `${v.id} ${v.value} ${v.price} ${v.stock}`).join(" ");
+        const haystack = normalizeSearchText(`${p.id} ${p.name} ${p.description} ${p.category} ${variantText}`);
         return (cat === "all" || p.category === cat) && haystack.includes(term);
       });
       grid.innerHTML = filtered.map(card).join("") || "<p>No products found.</p>";
