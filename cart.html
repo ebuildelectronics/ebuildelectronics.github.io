@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cart | e-Build Boards and Electronics</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <span class="logo">eB</span>
+      <span>e-Build Boards and Electronics</span>
+    </a>
+    <button id="menuBtn" class="menu" aria-label="Open menu">☰</button>
+    <nav id="nav">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="contact.html">Contact us</a>
+      <a href="pricelist.html">Pricelist</a>
+      <a href="cart.html">Cart <span id="cartCount" class="cart-count">0</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <h1>Order Summary</h1>
+      <p>Review your selected products before submitting your order.</p>
+    </section>
+
+    <section class="cart-layout">
+      <div id="cartItems" class="cart-items"></div>
+
+      <aside class="cart-summary">
+        <h2>Order Summary</h2>
+
+        <div class="summary-line">
+          <span>Total Items</span>
+          <strong id="summaryItems">0</strong>
+        </div>
+        <div class="summary-line">
+          <span>Estimated Total</span>
+          <strong id="summaryTotal">₱0</strong>
+        </div>
+
+        <form id="orderSubmitForm" method="POST">
+          <input type="hidden" name="_cc" id="formCc" value="official.recortech@gmail.com" />
+          <input type="hidden" name="_subject" id="formSubject" value="New Order Request - EBuild Electronics" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="true" />
+          <input type="hidden" name="Total Items" id="formTotalItems" />
+          <input type="hidden" name="Estimated Total" id="formEstimatedTotal" />
+          
+
+          <textarea
+  id="orderSummaryText"
+  name="Order Summary"
+  aria-label="Order details"
+  hidden
+></textarea>
+
+          <div class="customer-info">
+            <h3>Customer Information</h3>
+            <label for="customerName">Name</label>
+            <input id="customerName" name="Customer Name" type="text" required />
+
+            <label for="customerContact">Contact Number</label>
+            <input id="customerContact" name="Contact Number" type="text" required />
+
+            <label for="customerEmail">Email Address</label>
+            <input id="customerEmail" name="Customer Email" type="email" required />
+
+            <label for="customerNotes">Notes</label>
+            <textarea id="customerNotes" name="Customer Notes" rows="3" placeholder="Optional"></textarea>
+          </div>
+
+          <p class="order-note">Submit your order and we'll get back to you as soon as possible.</p>
+
+          <div class="order-actions">
+            <button type="submit" id="submitOrderBtn" class="btn primary">Submit Your Order</button>
+            <a class="btn" href="contact.html">Contact Us</a>
+            <button type="button" id="clearCartBtn" class="btn danger">Clear Cart</button>
+          </div>
+        </form>
+      </aside>
+    </section>
+  </main>
+
+  <footer>Copyright © RecorTech • Static GitHub Pages version</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
