@@ -5,19 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Shop | e-Build</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html"><span class="logo">eB</span><span>e-Build Boards and Electronics</span></a>
+    <a class="brand" href="index.html">
+  <img src="images/logo.png" class="nav-logo" alt="e-Build Logo">
+  <span class="brand-text">e-Build Boards and Electronics</span>
+</a>
     <button class="menu" id="menuBtn" aria-label="Open menu">☰</button>
     <nav id="nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="contact.html">Contact us</a><a href="pricelist.html">Pricelist</a><a href="cart.html">Cart <span id="cartCount" class="cart-count">0</span></a></nav>
   </header>
   <main>
-    <section class="page-head"><h1>Shop</h1><p>Search and filter products loaded directly from your Google Sheet.</p><p id="productCount" class="muted">Loading products…</p></section>
+    <section class="page-head"><h1>Shop</h1><p>Browse products loaded live from our inventory database.</p><p id="productCount" class="muted">Loading products…</p></section>
     <section class="toolbar"><input id="searchInput" type="search" placeholder="Search products, resistor values, capacitor values…"><select id="categoryFilter"><option value="all">All Categories</option></select></section>
     <section class="grid" id="productGrid"></section>
   </main>
-  <footer>407-6843 / 0960-313-8672 • Contact Us</footer>
+  <footer>
+  e-Build Electronics • Cebu Philippines • ebuild.electronics@gmail.com
+</footer>
   <script src="script.js"></script>
 </body>
 </html>
