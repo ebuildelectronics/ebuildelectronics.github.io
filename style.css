@@ -114,6 +114,7 @@ main {
   font-weight: 700;
   white-space: nowrap;
   line-height: 1.15;
+  color: var(--green-dark);
 }
 
 nav {
