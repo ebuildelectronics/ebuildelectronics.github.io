@@ -16,6 +16,9 @@ const ORDER_FORM_ENDPOINT = `https://formsubmit.co/${ORDER_EMAIL_TO}`;
 const IMAGE_ROOT = "images/eBuild Products/";
 const PLACEHOLDER_IMAGE = "images/placeholder-board.svg";
 const CART_KEY = "ebuild_cart_v1";
+const PRODUCTS_CACHE_KEY = "ebuild_products_cache_v1";
+const PRODUCTS_CACHE_TIME_KEY = "ebuild_products_cache_time_v1";
+const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours
 
 const qs = new URLSearchParams(location.search);
 let EBUILD_PRODUCTS = [];
@@ -164,6 +167,21 @@ function normalizeECProducts(rows) {
 
 async function loadProducts() {
   try {
+    // Check cache first
+    const cachedProducts = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    const cacheTime = localStorage.getItem(PRODUCTS_CACHE_TIME_KEY);
+
+    if (cachedProducts && cacheTime) {
+      const age = Date.now() - Number(cacheTime);
+
+      if (age < CACHE_DURATION) {
+        console.log("Using cached products");
+        return JSON.parse(cachedProducts);
+      }
+    }
+
+    console.log("Fetching fresh products from Google Sheets");
+
     const [piRows, ecRows] = await Promise.all([
       loadGoogleSheetRows(PI_GID),
       loadGoogleSheetRows(EC_GID)
@@ -174,15 +192,30 @@ async function loadProducts() {
     const products = [...normalProducts, ...componentProducts];
 
     if (!products.length) throw new Error("No products found. Check header names in row 1.");
+
+    // Save to cache
+    localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(products));
+    localStorage.setItem(PRODUCTS_CACHE_TIME_KEY, Date.now());
+
     return products;
+
   } catch (err) {
     console.warn("Google Sheet failed:", err);
+
+    // Fallback to cache if available
+    const cachedProducts = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    if (cachedProducts) {
+      console.log("Using expired cache because Google Sheet failed");
+      return JSON.parse(cachedProducts);
+    }
+
     showLoadWarning(err.message || String(err));
+
     return [{
       id: "demo-1",
       source: "Demo",
       name: "Demo Product - Google Sheet not loaded",
-      description: "The layout is working, but the live Google Sheet failed to load. Check sharing/publish settings or internet connection.",
+      description: "The layout is working, but the live Google Sheet failed to load.",
       price: "",
       category: "Demo",
       image: "",
@@ -231,7 +264,7 @@ function getImageCandidates(product) {
 
 function imageTag(product, className = "") {
   const candidates = getImageCandidates(product);
-  return `<img class="${className}" src="${candidates[0]}" alt="${escapeHtml(product.name)}" data-img-list='${escapeHtml(JSON.stringify(candidates))}' data-img-index="0" onerror="nextImage(this)">`;
+  return `<img loading="lazy" class="${className}" src="${candidates[0]}" alt="${escapeHtml(product.name)}" data-img-list='${escapeHtml(JSON.stringify(candidates))}' data-img-index="0" onerror="nextImage(this)">`;
 }
 
 function nextImage(img) {
