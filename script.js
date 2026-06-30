@@ -518,6 +518,16 @@ document.getElementById("orderSubmitForm")?.addEventListener("submit", event => 
 });
 
 document.getElementById("clearCartBtn")?.addEventListener("click", clearCart);
+document.getElementById("forceSyncBtn")?.addEventListener("click", () => {
+  localStorage.removeItem(PRODUCTS_CACHE_KEY);
+  localStorage.removeItem(PRODUCTS_CACHE_TIME_KEY);
+
+  showToast("Product cache cleared. Syncing...");
+  
+  setTimeout(() => {
+    location.reload();
+  }, 800);
+});
 
 function card(p) {
   const firstVariant = p.variants?.[0];
