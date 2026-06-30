@@ -677,7 +677,7 @@ th {
 
 .cart-item {
   display: grid;
-  grid-template-columns: 110px minmax(280px, 1fr) 260px;
+  grid-template-columns: 110px minmax(220px, 1fr) 80px;
   gap: 18px;
   align-items: center;
   border: 1px solid var(--line);
