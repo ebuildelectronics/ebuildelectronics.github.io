@@ -479,6 +479,17 @@ function showToast(message) {
 }
 
 document.addEventListener("click", event => {
+  if (event.target.id === "shareFbBtn") {
+    const url = encodeURIComponent(window.location.href);
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      "_blank",
+      "width=600,height=400"
+    );
+  }
+});
+
+document.addEventListener("click", event => {
   const btn = event.target.closest("[data-add-to-cart]");
   if (!btn) return;
   event.preventDefault();
@@ -570,6 +581,7 @@ function renderProductDetail(products) {
         <button class="btn primary" data-add-to-cart data-product-id="${escapeHtml(p.id)}">Add to Cart</button>
         <a class="btn" href="cart.html">View Cart</a>
         <a class="btn" href="contact.html">Contact Us</a>
+        <button class="btn share-fb-btn" id="shareFbBtn">Share on Facebook</button>
       </div>
       <p class="muted">7-day Warranty • Shipping: Maxim COD</p>
     </div>

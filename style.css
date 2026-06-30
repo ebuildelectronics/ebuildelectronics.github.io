@@ -1216,3 +1216,16 @@ footer {
 .sync-btn:hover {
   text-decoration: underline;
 }
+
+.share-fb-btn {
+  background: white;
+  color: #1877f2;
+  border: 2px solid #1877f2;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.share-fb-btn:hover {
+  background: #1877f2;
+  color: white;
+}
