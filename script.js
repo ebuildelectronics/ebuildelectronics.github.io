@@ -254,10 +254,14 @@ function getImageCandidates(product) {
 
   const paths = [];
   bases.forEach(base => {
-    const hasExt = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(base);
-    if (hasExt) paths.push(`${IMAGE_ROOT}${base}`);
-    else ["jpg", "jpeg", "png", "webp"].forEach(ext => paths.push(`${IMAGE_ROOT}${base}.${ext}`));
-  });
+  const hasExt = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(base);
+
+  if (hasExt) {
+    paths.push(`${IMAGE_ROOT}${base}`);
+  } else {
+    paths.push(`${IMAGE_ROOT}${base}.jpg`);
+  }
+});
   paths.push(PLACEHOLDER_IMAGE);
   return paths.map(p => encodeURI(p));
 }
@@ -652,7 +656,15 @@ setView(localStorage.getItem("shopView") || "grid");
       grid.innerHTML = filtered.map(card).join("") || "<p>No products found.</p>";
     }
 
-    search.addEventListener("input", render);
+    let searchTimer;
+
+search.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+
+  searchTimer = setTimeout(() => {
+    render();
+  }, 300);
+});
     select.addEventListener("change", render);
     render();
   }
