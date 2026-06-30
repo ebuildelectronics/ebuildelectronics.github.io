@@ -410,13 +410,21 @@ function renderCartPage() {
         ${item.sku ? `<small>SKU: ${escapeHtml(item.sku)}</small>` : ""}
         <p>${peso(item.price)}</p>
       </div>
-      <div class="qty-box">
-        <label>Qty</label>
-        <input type="number" min="1" value="${item.qty}" onchange="updateCartQty('${escapeHtml(item.id)}', this.value)">
-      </div>
-      <div class="cart-line-total">${peso(parsePriceNumber(item.price) * Number(item.qty || 1))}</div>
-      <button class="remove-btn" onclick="removeFromCart('${escapeHtml(item.id)}')">Remove</button>
-    </div>
+      <div class="cart-controls">
+  <div class="qty-box">
+    <label>Qty</label>
+    <input type="number" min="1" value="${item.qty}" onchange="updateCartQty('${escapeHtml(item.id)}', this.value)">
+  </div>
+
+  <div class="cart-line-total">
+    ${peso(parsePriceNumber(item.price) * Number(item.qty || 1))}
+  </div>
+
+  <button class="remove-btn" onclick="removeFromCart('${escapeHtml(item.id)}')">
+    Remove
+  </button>
+</div>
+</div>
   `).join("");
 }
 
@@ -540,14 +548,19 @@ function renderPriceTable(products) {
     }
   });
 
-  priceTable.innerHTML = rows.map(row => `
-    <tr>
-      <td><a href="product.html?id=${encodeURIComponent(row.productId)}">${escapeHtml(row.name)}</a></td>
-      <td>${escapeHtml(row.category)}</td>
-      <td>${peso(row.price)}</td>
-      <td><a class="btn small" href="product.html?id=${encodeURIComponent(row.productId)}">View</a></td>
-    </tr>
-  `).join("");
+  priceTable.innerHTML = rows.map(row => {
+  const product = products.find(p => p.id === row.productId) || row;
+
+  return `
+    <a class="price-item" href="product.html?id=${encodeURIComponent(row.productId)}">
+      ${imageTag(product, "price-item-img")}
+      <div class="price-item-info">
+        <h3>${escapeHtml(row.name)}</h3>
+        <p>${peso(row.price)}</p>
+      </div>
+    </a>
+  `;
+}).join("");
 }
 
 updateCartCount();
