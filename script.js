@@ -483,8 +483,6 @@ function card(p) {
       <div class="product-info">
         <span>${escapeHtml(p.category)}</span>
         <h3><a href="product.html?id=${encodeURIComponent(p.id)}">${escapeHtml(p.name)}</a></h3>
-        <p class="card-desc">${escapeHtml(shortDescription(p.description))}</p>
-        ${variantSelectHtml(p)}
         <h3 class="price" data-price-box data-product-id="${escapeHtml(p.id)}">${peso(priceToShow)}</h3>
         <div class="card-actions">
           <a class="btn small" href="product.html?id=${encodeURIComponent(p.id)}">Details</a>
@@ -573,6 +571,29 @@ loadProducts().then(products => {
     const select = document.getElementById("categoryFilter");
     cats.forEach(c => select.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
     const search = document.getElementById("searchInput");
+    const gridBtn = document.getElementById("gridViewBtn");
+const listBtn = document.getElementById("listViewBtn");
+
+function setView(mode) {
+  grid.classList.remove("compact-grid", "list-view");
+  gridBtn.classList.remove("active");
+  listBtn.classList.remove("active");
+
+  if (mode === "list") {
+    grid.classList.add("list-view");
+    listBtn.classList.add("active");
+  } else {
+    grid.classList.add("compact-grid");
+    gridBtn.classList.add("active");
+  }
+
+  localStorage.setItem("shopView", mode);
+}
+
+gridBtn?.addEventListener("click", () => setView("grid"));
+listBtn?.addEventListener("click", () => setView("list"));
+
+setView(localStorage.getItem("shopView") || "grid");
 
     function render() {
       const term = search.value.toLowerCase();

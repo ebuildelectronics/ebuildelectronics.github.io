@@ -20,7 +20,18 @@
   </header>
   <main>
     <section class="page-head"><h1>Shop</h1><p>Browse products loaded live from our inventory database.</p><p id="productCount" class="muted">Loading products…</p></section>
-    <section class="toolbar"><input id="searchInput" type="search" placeholder="Search products, resistor values, capacitor values…"><select id="categoryFilter"><option value="all">All Categories</option></select></section>
+    <section class="toolbar">
+  <input id="searchInput" type="search" placeholder="Search products, resistor values, capacitor values…">
+
+  <select id="categoryFilter">
+    <option value="all">All Categories</option>
+  </select>
+
+  <div class="view-toggle">
+    <button id="gridViewBtn" class="active">Grid</button>
+    <button id="listViewBtn">List</button>
+  </div>
+</section>
     <section class="grid" id="productGrid"></section>
   </main>
   <footer>
