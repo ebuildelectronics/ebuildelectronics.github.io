@@ -318,7 +318,7 @@ function addToCart(product, qty = 1) {
   if (existing) existing.qty = Number(existing.qty || 1) + qty;
   else cart.push({ ...product, qty });
   saveCart(cart);
-  showToast(`${product.name} added to cart`);
+  showToast(`✓ Added: ${product.name.slice(0, 35)}...`);
 }
 
 function removeFromCart(id) {
