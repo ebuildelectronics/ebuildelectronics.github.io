@@ -12,6 +12,7 @@
 
   --shadow-sm: 0 8px 24px rgba(18, 48, 38, 0.06);
   --shadow-md: 0 18px 40px rgba(18, 48, 38, 0.08);
+  --shadow-lg: 0 24px 60px rgba(18, 48, 38, 0.12);
 
   --radius-sm: 12px;
   --radius-md: 18px;
@@ -67,6 +68,20 @@ main {
   padding: 60px 0;
 }
 
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.highlight {
+  color: var(--green);
+}
+
+.muted {
+  color: var(--muted);
+}
+
 /* ========================================
    3. HEADER
 ======================================== */
@@ -85,7 +100,7 @@ main {
 
 .brand {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 
@@ -98,12 +113,17 @@ main {
 .brand-text {
   font-weight: 700;
   white-space: nowrap;
+  line-height: 1.15;
 }
 
 nav {
   display: flex;
   gap: 22px;
   align-items: center;
+}
+
+nav a {
+  transition: 0.2s ease;
 }
 
 nav a:hover {
@@ -140,11 +160,18 @@ nav a:hover {
   background: var(--green);
   border-color: var(--green);
   color: white;
+  box-shadow: 0 8px 20px rgba(21,144,91,0.25);
 }
 
 .btn.small {
   padding: 9px 12px;
   font-size: 14px;
+}
+
+.btn.danger {
+  color: #a52a2a;
+  background: #fff1f1;
+  border-color: #ffd1d1;
 }
 
 /* ========================================
@@ -155,7 +182,7 @@ nav a:hover {
   grid-template-columns: 1.4fr 0.9fr;
   gap: 30px;
   align-items: center;
-  padding: 30px 6vw 55px;
+  padding: 18px 6vw 55px;
   background:
     radial-gradient(circle at top right, rgba(21,144,91,.12), transparent 28%),
     linear-gradient(135deg, #f4fff8, #eef7ff);
@@ -171,6 +198,15 @@ nav a:hover {
 .hero p {
   font-size: 18px;
   color: var(--muted);
+  max-width: 720px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #5f6f68;
+  font-weight: 700;
+  font-size: 13px;
 }
 
 .actions,
@@ -178,6 +214,7 @@ nav a:hover {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  margin-top: 22px;
 }
 
 .hero-card,
@@ -190,6 +227,10 @@ nav a:hover {
   box-shadow: var(--shadow-sm);
 }
 
+.hero-card {
+  padding: 28px;
+}
+
 /* ========================================
    6. HOMEPAGE STATS
 ======================================== */
@@ -197,6 +238,7 @@ nav a:hover {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+  background: linear-gradient(135deg, #ffffff, #f7fbf8);
 }
 
 .stat-box {
@@ -205,22 +247,86 @@ nav a:hover {
   border-radius: 18px;
   padding: 24px 16px;
   text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+  transition: all 0.25s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-box h3 {
   margin: 0;
   font-size: 28px;
+  font-weight: 800;
   color: var(--green);
 }
 
 .stat-box p {
   margin-top: 8px;
   font-size: 14px;
-  color: var(--muted);
+  color: #5f6f68;
+  font-weight: 600;
 }
 
 /* ========================================
-   7. PRODUCT GRID BASE
+   7. SHOP PAGE
+======================================== */
+.page-head {
+  padding: 8px 0 18px;
+}
+
+.page-head h1 {
+  font-size: 26px;
+  margin: 8px 0;
+}
+
+.page-head p {
+  color: var(--muted);
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.toolbar input,
+.toolbar select {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  font-size: 16px;
+  background: white;
+}
+
+/* ========================================
+   8. VIEW TOGGLE
+======================================== */
+.view-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.view-toggle button {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.view-toggle button.active {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+
+/* ========================================
+   9. PRODUCT GRID
 ======================================== */
 .grid {
   display: grid;
@@ -262,6 +368,7 @@ nav a:hover {
 .product-info h3 {
   margin: 8px 0;
   font-size: 18px;
+  min-height: 52px;
 }
 
 .product-info .price {
@@ -270,60 +377,12 @@ nav a:hover {
   font-size: 18px;
 }
 
-/* ========================================
-   8. SHOP PAGE
-======================================== */
-.page-head {
-  padding: 8px 0 18px;
-}
-
-.page-head h1 {
-  font-size: 26px;
-  margin: 8px 0;
-}
-
-.page-head p {
-  color: var(--muted);
-}
-
-.toolbar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.toolbar input,
-.toolbar select {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  font-size: 16px;
-  background: white;
-}
-
-.view-toggle {
-  display: flex;
-  gap: 6px;
-}
-
-.view-toggle button {
-  padding: 12px 16px;
-  border: 1px solid var(--line);
-  background: white;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.view-toggle button.active {
-  background: var(--green);
-  color: white;
-  border-color: var(--green);
+.price {
+  margin: 14px 0 0;
 }
 
 /* ========================================
-   9. SHOP GRID VIEW (DESKTOP)
+   10. COMPACT GRID VIEW
 ======================================== */
 .grid.compact-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -363,7 +422,7 @@ nav a:hover {
 }
 
 /* ========================================
-   10. SHOP LIST VIEW
+   11. LIST VIEW
 ======================================== */
 .grid.list-view {
   display: flex;
@@ -393,6 +452,7 @@ nav a:hover {
 .grid.list-view .product-info h3 {
   font-size: 15px;
   margin: 4px 0;
+  min-height: auto;
 }
 
 .grid.list-view .product-info .price {
@@ -412,7 +472,7 @@ nav a:hover {
 }
 
 /* ========================================
-   11. PRODUCT DETAIL
+   12. PRODUCT DETAIL
 ======================================== */
 .product-detail {
   display: grid;
@@ -426,6 +486,7 @@ nav a:hover {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .back {
@@ -439,6 +500,7 @@ nav a:hover {
   line-height: 1.7;
   color: #2c463b;
   margin: 18px 0;
+  white-space: normal;
 }
 
 .variant-label {
@@ -456,10 +518,29 @@ nav a:hover {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: white;
+  font-size: 14px;
+}
+
+.variant-meta {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stock-pill {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #edf7f1;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 /* ========================================
-   12. CONTACT / CARDS
+   13. SPLIT / NOTICE
 ======================================== */
 .split {
   display: grid;
@@ -473,6 +554,15 @@ nav a:hover {
   padding: 24px;
 }
 
+.card-desc {
+  color: var(--muted);
+  font-size: 14px;
+  min-height: 42px;
+}
+
+/* ========================================
+   14. CONTACT
+======================================== */
 .contact-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -480,14 +570,24 @@ nav a:hover {
   padding: 20px 0 70px;
 }
 
+.card a {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
 /* ========================================
-   13. TABLE
+   15. PRICELIST TABLE
 ======================================== */
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 18px;
   margin-bottom: 70px;
+  box-shadow: var(--shadow-sm);
 }
 
 table {
@@ -509,7 +609,7 @@ th {
 }
 
 /* ========================================
-   14. CART LAYOUT
+   16. CART LAYOUT
 ======================================== */
 .cart-layout {
   display: grid;
@@ -548,23 +648,13 @@ th {
 .cart-info h3 {
   margin: 4px 0;
   line-height: 1.25;
-  font-size: 28px;
+  font-size: 16px;
   font-weight: 700;
-}
-
-@media (max-width: 760px) {
-  .cart-info h3 {
-    font-size: 16px;
-  }
 }
 
 .cart-info small {
   color: var(--muted);
   font-size: 12px;
-}
-
-.cart-line-total {
-  font-size: 18px;
 }
 
 .qty-box label {
@@ -584,6 +674,7 @@ th {
 .cart-line-total {
   font-weight: 700;
   color: var(--green);
+  font-size: 18px;
 }
 
 .remove-btn {
@@ -597,7 +688,7 @@ th {
 }
 
 /* ========================================
-   CART SUMMARY
+   17. CART SUMMARY
 ======================================== */
 .cart-summary {
   position: sticky;
@@ -625,7 +716,7 @@ th {
 }
 
 /* ========================================
-   ORDER FORM
+   18. ORDER FORM
 ======================================== */
 .customer-info {
   margin-top: 18px;
@@ -655,10 +746,16 @@ th {
   border-radius: 12px;
   background: white;
   font: inherit;
+  color: var(--dark);
 }
 
-.customer-info textarea {
+.customer-info textarea,
+#orderSummaryText {
   resize: vertical;
+}
+
+#orderSummaryText {
+  margin-top: 16px;
 }
 
 .order-note {
@@ -669,19 +766,27 @@ th {
 
 .order-actions {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 10px;
   margin-top: 16px;
 }
 
 .order-actions .btn {
   width: 100%;
+  min-height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+}
+
+#submitOrderBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* ========================================
-   15. UTILITIES
+   19. UTILITIES
 ======================================== */
 #productCount {
   font-weight: 700;
@@ -698,6 +803,36 @@ th {
   color: #5f4300;
 }
 
+.sheet-warning span {
+  color: #6b5a2c;
+}
+
+.cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.product-card button,
+.actions button,
+.link-button {
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ========================================
+   20. TOAST
+======================================== */
 .toast {
   position: fixed;
   left: 50%;
@@ -722,42 +857,49 @@ th {
   transform: translateX(-50%) translateY(0);
 }
 
-@media (max-width: 760px) {
-  .toast {
-    min-width: auto;
-    width: calc(100% - 40px);
-    max-width: 340px;
-    font-size: 14px;
-  }
-}
-
-.product-card button,
-.actions button {
-  font: inherit;
-  cursor: pointer;
-}
-
 /* ========================================
-   16. FOOTER
+   21. FOOTER
 ======================================== */
 footer {
   text-align: center;
-  padding: 24px 6vw;
+  padding: 22px 4vw;
   background: var(--dark);
   color: #dcebe5;
   font-size: 14px;
 }
 
 /* ========================================
-   17. MOBILE RESPONSIVE
+   22. MOBILE RESPONSIVE
 ======================================== */
 @media (max-width: 900px) {
   .cart-layout {
     grid-template-columns: 1fr;
+    margin-left: 4vw;
+    margin-right: 4vw;
   }
 
   .cart-summary {
     position: static;
+  }
+
+  .cart-item {
+    grid-template-columns: 86px 1fr;
+    align-items: start;
+  }
+
+  .cart-img {
+    width: 86px;
+    height: 78px;
+  }
+
+  .qty-box,
+  .cart-line-total,
+  .remove-btn {
+    grid-column: 2;
+  }
+
+  .remove-btn {
+    width: max-content;
   }
 }
 
@@ -765,36 +907,6 @@ footer {
   .menu {
     display: block;
   }
-
-  nav a {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .cart-layout {
-  grid-template-columns: 1fr;
-}
-
-.cart-summary {
-  position: static;
-}
-
-.cart-item {
-  grid-template-columns: 80px 1fr;
-  align-items: start;
-}
-
-.cart-img {
-  width: 80px;
-  height: 80px;
-}
-
-.qty-box,
-.cart-line-total,
-.remove-btn {
-  grid-column: 2;
-}
 
   nav {
     display: none;
@@ -807,6 +919,7 @@ footer {
     padding: 18px 4vw;
     flex-direction: column;
     align-items: flex-start;
+    box-shadow: var(--shadow-md);
   }
 
   nav.open {
@@ -841,11 +954,30 @@ footer {
   }
 
   .hero {
-    padding: 12px 4vw 34px;
+    padding: 8px 4vw 34px;
+    gap: 22px;
   }
 
   .hero h1 {
     font-size: 40px;
+    line-height: 1.05;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .page-head h1 {
+    font-size: 25px;
   }
 
   .brand-text {
@@ -857,7 +989,7 @@ footer {
     height: 34px;
   }
 
-  /* MOBILE GRID VIEW */
+  /* Mobile Grid View */
   .grid.compact-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
@@ -898,7 +1030,7 @@ footer {
     font-size: 11px;
   }
 
-  /* MOBILE LIST VIEW */
+  /* Mobile List View */
   .grid.list-view .product-card {
     grid-template-columns: 75px 1fr;
   }
@@ -912,26 +1044,33 @@ footer {
     font-size: 11px;
     padding: 6px 8px;
   }
+
+  .stats-card {
+    gap: 12px;
+  }
+
+  .stat-box {
+    padding: 18px 12px;
+  }
+
+  .stat-box h3 {
+    font-size: 22px;
+  }
+
+  .toast {
+    min-width: auto;
+    width: calc(100% - 40px);
+    max-width: 340px;
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 480px) {
   .hero h1 {
     font-size: 34px;
   }
-}
 
-.cart-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--green);
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  margin-left: 6px;
-  vertical-align: middle;
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
