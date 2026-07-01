@@ -587,6 +587,10 @@ document.getElementById("forceSyncBtn")?.addEventListener("click", () => {
   }, 800);
 });
 
+document.getElementById("saveSummaryBtn")?.addEventListener("click", () => {
+  window.print();
+});
+
 function card(p) {
   const firstVariant = p.variants?.[0];
   const priceToShow = firstVariant ? firstVariant.price : p.price;
@@ -682,20 +686,26 @@ function renderThankYouPage() {
   }
 
   let html = `
+  <div class="thankyou-info">
     <strong>Order ID:</strong> ${order.orderId}<br>
-    <strong>Date:</strong> ${order.date}<br>
+    <strong>Date:</strong> ${order.date}<br><br>
+
     <strong>Name:</strong> ${order.customerName}<br>
     <strong>Contact:</strong> ${order.customerContact}<br>
-    <strong>Email:</strong> ${order.customerEmail}<br><br>
-    <strong>Items Ordered:</strong><br>
-  `;
+    <strong>Email:</strong> ${order.customerEmail}<br>
+  </div>
+
+  <br>
+  <strong>Items Ordered:</strong>
+  <div class="thankyou-items">
+`;
 
   order.items.forEach(item => {
     const lineTotal = parsePriceNumber(item.price) * Number(item.qty || 1);
     html += `• ${item.name} × ${item.qty} — ${peso(lineTotal)}<br>`;
   });
 
-  html += `<br><strong>Total:</strong> ${peso(order.total)}`;
+  html += `</div><br><strong>Total:</strong> ${peso(order.total)}`;
 
   summaryBox.innerHTML = html;
 }
