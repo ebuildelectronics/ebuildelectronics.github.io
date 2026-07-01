@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Google Map | e-Build</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <img src="images/logo.png" class="nav-logo" alt="e-Build Logo">
+      <span class="brand-text">e-Build Boards and Electronics</span>
+    </a>
+
+    <button class="menu" id="menuBtn" aria-label="Open menu">☰</button>
+
+    <nav id="nav">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="contact.html">Contact us</a>
+      <a href="pricelist.html">Pricelist</a>
+      <a href="google-map.html">Google Map</a>
+      <a href="cart.html">Cart <span id="cartCount" class="cart-count">0</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-head">
+  <h1>Google Map</h1>
+  <p>Visit our store or locate us easily using Google Maps.</p>
+</section>
+
+    <section class="map-section">
+      <div class="map-card">
+        <iframe
+        
+          src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d245.2719490295492!2d123.9851205!3d10.393657!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33a9bd5691239b13%3A0x40cee1979f45445a!2sRecorTech%20Liloan%20Branch!5e0!3m2!1sen!2sph!4v1782872680657!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+          width="100%"
+          height="450"
+          style="border:0;"
+          allowfullscreen=""
+          loading="lazy">
+        </iframe>
+        <div class="map-info">
+  <h3>Store Location</h3>
+  <p>RecorTech Liloan Branch : e-Build Boards and Electronics</p>
+  </p>
+  <p>Liloan, Cebu, Philippines</p>
+  <a href="https://maps.google.com/?q=10.39365699092829,123.98512054727802" target="_blank" class="btn primary">
+  Open in Google Maps
+</a>
+</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      © 2026 eBuild Electronics |
+      Powered by QCode Systems |
+      <button id="forceSyncBtn" class="sync-btn">Force Sync</button>
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
