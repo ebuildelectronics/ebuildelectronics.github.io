@@ -1420,3 +1420,15 @@ footer {
 .order-card .btn {
   margin-top: 14px;
 }
+
+#submitOrderBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#submitOrderBtn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}

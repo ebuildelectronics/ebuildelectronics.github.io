@@ -570,6 +570,14 @@ document.getElementById("orderSubmitForm")?.addEventListener("submit", event => 
 
   syncOrderForm(cart);
 
+  const submitBtn = document.getElementById("submitOrderBtn");
+const submitText = document.getElementById("submitBtnText");
+const submitSpinner = document.getElementById("submitSpinner");
+
+if (submitBtn) submitBtn.disabled = true;
+if (submitText) submitText.textContent = "Submitting Order...";
+if (submitSpinner) submitSpinner.style.display = "inline";
+
   saveOrderData();
 
   localStorage.removeItem(CART_KEY);
