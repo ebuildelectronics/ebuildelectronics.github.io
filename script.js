@@ -599,6 +599,37 @@ document.getElementById("saveSummaryBtn")?.addEventListener("click", () => {
   window.print();
 });
 
+document.getElementById("downloadSummaryBtn")?.addEventListener("click", () => {
+  const order = JSON.parse(localStorage.getItem("lastOrder") || "null");
+
+  if (!order) {
+    alert("No order found.");
+    return;
+  }
+
+  let txt = `e-Build Electronics Order Summary\n\n`;
+txt += `Order ID: ${order.orderId}\n`;
+txt += `Date: ${order.date}\n`;
+txt += `Customer: ${order.customerName}\n`;
+txt += `Contact: ${order.customerContact}\n`;
+txt += `Email: ${order.customerEmail}\n\n`;
+txt += `Items Ordered:\n`;
+
+order.items.forEach(item => {
+  const lineTotal = parsePriceNumber(item.price) * Number(item.qty || 1);
+  txt += `- ${item.name} x${item.qty} = ${peso(lineTotal)}\n`;
+});
+
+txt += `\nTotal: ${peso(order.total)}`;
+
+const blob = new Blob([txt], { type: "text/plain" });
+const link = document.createElement("a");
+
+link.href = URL.createObjectURL(blob);
+link.download = `${order.orderId}-order-summary.txt`;
+link.click();
+});
+
 function card(p) {
   const firstVariant = p.variants?.[0];
   const priceToShow = firstVariant ? firstVariant.price : p.price;
