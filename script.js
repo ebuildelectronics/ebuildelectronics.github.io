@@ -652,14 +652,9 @@ loadProducts().then(products => {
   const featured = document.getElementById("featuredProducts");
 
 if (featured) {
-  const featuredProducts = products.filter(p =>
-    p.tags?.some(tag => tag.toLowerCase() === "featured")
-  );
-
-  featured.innerHTML = featuredProducts.slice(0, 6).map(card).join("");
+  const taggedProducts = products.filter(p => p.tags?.length);
+  featured.innerHTML = taggedProducts.map(card).join("");
 }
-  if (featured) featured.innerHTML = products.slice(0, 6).map(card).join("");
-
   const count = document.getElementById("productCount");
   if (count) {
     const variantCount = products.reduce((sum, p) => sum + (p.variants?.length || 0), 0);
