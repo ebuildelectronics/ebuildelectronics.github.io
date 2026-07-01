@@ -1275,3 +1275,13 @@ footer {
   background: #1877f2;
   color: white;
 }
+
+.featured-grid {
+  gap: 14px;
+}
+
+.section #featuredProducts {
+  margin-left: 0;
+  margin-right: 0;
+}
+
