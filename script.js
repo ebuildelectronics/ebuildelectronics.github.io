@@ -117,7 +117,11 @@ function normalizePIProducts(rows) {
       category: String(r["product category"] || "Uncategorized").trim(),
       image: String(r["image"] || name).trim(),
       stock: String(r["stock"] || "").trim(),
-      variants: []
+tags: String(r["tags"] || "")
+  .split(",")
+  .map(tag => tag.trim())
+  .filter(Boolean),
+variants: []
     };
   }).filter(p => p.id && p.name);
 }
@@ -150,7 +154,11 @@ function normalizeECProducts(rows) {
         category: String(r["product category"] || "Components").trim(),
         image: String(r["image"] || groupName).trim(),
         stock: String(r["stock"] || "").trim(),
-        variants: []
+tags: String(r["tags"] || "")
+  .split(",")
+  .map(tag => tag.trim())
+  .filter(Boolean),
+variants: []
       });
     }
 
@@ -269,6 +277,18 @@ function getImageCandidates(product) {
 function imageTag(product, className = "") {
   const candidates = getImageCandidates(product);
   return `<img loading="lazy" class="${className}" src="${candidates[0]}" alt="${escapeHtml(product.name)}" data-img-list='${escapeHtml(JSON.stringify(candidates))}' data-img-index="0" onerror="nextImage(this)">`;
+}
+
+function renderBadges(product) {
+  if (!product.tags?.length) return "";
+
+  return `
+    <div class="product-badges">
+      ${product.tags.map(tag =>
+        `<span class="product-badge badge-${slugify(tag)}">${escapeHtml(tag)}</span>`
+      ).join("")}
+    </div>
+  `;
 }
 
 function nextImage(img) {
@@ -545,6 +565,7 @@ function card(p) {
   const priceToShow = firstVariant ? firstVariant.price : p.price;
   return `
     <article class="product-card">
+  ${renderBadges(p)}
       <a href="product.html?id=${encodeURIComponent(p.id)}">${imageTag(p)}</a>
       <div class="product-info">
         <span>${escapeHtml(p.category)}</span>
@@ -629,6 +650,14 @@ loadProducts().then(products => {
   EBUILD_PRODUCTS = products;
 
   const featured = document.getElementById("featuredProducts");
+
+if (featured) {
+  const featuredProducts = products.filter(p =>
+    p.tags?.some(tag => tag.toLowerCase() === "featured")
+  );
+
+  featured.innerHTML = featuredProducts.slice(0, 6).map(card).join("");
+}
   if (featured) featured.innerHTML = products.slice(0, 6).map(card).join("");
 
   const count = document.getElementById("productCount");
