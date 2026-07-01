@@ -713,6 +713,72 @@ function renderThankYouPage() {
 updateCartCount();
 renderCartPage();
 renderThankYouPage();
+renderOrderHistoryPage();
+
+function renderOrderHistoryPage() {
+  const container = document.getElementById("orderHistoryList");
+  if (!container) return;
+
+  const orders = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+
+  if (!orders.length) {
+    container.innerHTML = "<p>No order history found.</p>";
+    return;
+  }
+
+  let html = "";
+
+  orders.forEach(order => {
+    const itemCount = order.items.reduce((sum, item) => sum + Number(item.qty || 1), 0);
+
+    html += `
+  <div class="order-card">
+    <h3>${order.orderId}</h3>
+    <p>Date: ${order.date}</p>
+    <p>Total Items: ${itemCount}</p>
+    <p>Total: ${peso(order.total)}</p>
+
+    <button class="btn primary small view-order-btn" data-id="${order.orderId}">
+      View Summary
+    </button>
+
+    <div class="order-summary-box" id="summary-${order.orderId}" style="display:none;">
+    </div>
+  </div>
+`;
+  });
+
+  container.innerHTML = html;
+
+  container.querySelectorAll(".view-order-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const orderId = btn.dataset.id;
+    const order = orders.find(o => o.orderId === orderId);
+    const summaryBox = document.getElementById(`summary-${orderId}`);
+
+    if (!order || !summaryBox) return;
+
+    if (summaryBox.style.display === "block") {
+      summaryBox.style.display = "none";
+      return;
+    }
+
+    let summaryHtml = "<h4>Items Ordered:</h4><ul>";
+
+    order.items.forEach(item => {
+      const cleanPrice = Number(String(item.price).replace("Php", "").replace(/,/g, ""));
+const lineTotal = cleanPrice * Number(item.qty);
+summaryHtml += `<li>${item.name} × ${item.qty} — ${peso(lineTotal)}</li>`;
+    });
+
+    summaryHtml += "</ul>";
+
+    summaryBox.innerHTML = summaryHtml;
+    summaryBox.style.display = "block";
+  });
+});
+
+}
 
 loadProducts().then(products => {
   EBUILD_PRODUCTS = products;

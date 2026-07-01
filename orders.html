@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order History | e-Build</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <img src="images/logo.png" class="nav-logo" alt="e-Build Logo">
+      <span class="brand-text">e-Build Boards and Electronics</span>
+    </a>
+
+    <button id="menuBtn" class="menu" aria-label="Open menu">☰</button>
+
+    <nav id="nav">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="contact.html">Contact us</a>
+      <a href="pricelist.html">Pricelist</a>
+      <a href="google-map.html">Google Map</a>
+      <a href="orders.html">Orders</a>
+      <a href="cart.html">Cart <span id="cartCount" class="cart-count">0</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <h1>Order History</h1>
+      <p>View your previous orders.</p>
+    </section>
+
+    <section class="section">
+      <div id="orderHistoryList" class="order-history-list">
+        Loading orders...
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>
+      © 2026 eBuild Electronics |
+      Powered by QCode Systems |
+      <button id="forceSyncBtn" class="sync-btn">Force Sync</button>
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
