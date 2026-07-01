@@ -656,10 +656,12 @@ if (featured) {
   featured.innerHTML = taggedProducts.map(card).join("");
 }
   const count = document.getElementById("productCount");
-  if (count) {
-    const variantCount = products.reduce((sum, p) => sum + (p.variants?.length || 0), 0);
-    count.textContent = `${products.length} product groups loaded • ${variantCount} component values`;
-  }
+if (count) {
+  const variantCount = products.reduce((sum, p) => sum + (p.variants?.length || 0), 0);
+  const totalProducts = products.filter(p => !p.variants?.length).length + variantCount;
+
+  count.textContent = `${totalProducts} total products loaded`;
+}
 
   const grid = document.getElementById("productGrid");
   if (grid) {
