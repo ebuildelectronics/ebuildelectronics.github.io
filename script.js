@@ -11,7 +11,7 @@ const EC_GID = "590322752";
 // Order emails. FormSubmit sends to the main email and CCs the second email.
 const ORDER_EMAIL_TO = "ebuild.electronics@gmail.com";
 const ORDER_EMAIL_CC = "official.recortech@gmail.com";
-const ORDER_FORM_ENDPOINT = `https://formsubmit.co/${ORDER_EMAIL_TO}`;
+const ORDER_FORM_ENDPOINT = `https://formsubmit.co/ajax/${ORDER_EMAIL_TO}`;
 
 const IMAGE_ROOT = "images/eBuild Products/";
 const PLACEHOLDER_IMAGE = "images/placeholder-board.svg";
@@ -560,6 +560,8 @@ document.getElementById("orderSummaryText")?.addEventListener("input", event => 
 });
 
 document.getElementById("orderSubmitForm")?.addEventListener("submit", event => {
+  event.preventDefault();
+  const form = event.target;
   const cart = getCart();
 
   if (!cart.length) {
@@ -581,6 +583,21 @@ if (submitSpinner) submitSpinner.style.display = "inline";
   saveOrderData();
 
   localStorage.removeItem(CART_KEY);
+  fetch(ORDER_FORM_ENDPOINT, {
+  method: "POST",
+  body: new FormData(form),
+  headers: {
+    Accept: "application/json"
+  }
+})
+.then(response => response.json())
+.then(data => {
+  window.location.href = "thankyou.html";
+})
+.catch(error => {
+  alert("Order submission failed. Please try again.");
+  console.error(error);
+});
 });
 
 document.getElementById("clearCartBtn")?.addEventListener("click", clearCart);
