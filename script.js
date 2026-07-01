@@ -414,6 +414,27 @@ function buildOrderSummary(cart) {
   return lines.join("\n");
 }
 
+function saveOrderData() {
+  const cart = getCart();
+  if (!cart.length) return;
+
+  const order = {
+    orderId: "EB-" + Date.now(),
+    date: new Date().toLocaleString(),
+    customerName: document.getElementById("customerName")?.value || "",
+    customerContact: document.getElementById("customerContact")?.value || "",
+    customerEmail: document.getElementById("customerEmail")?.value || "",
+    items: cart,
+    total: cartTotal(cart)
+  };
+
+  localStorage.setItem("lastOrder", JSON.stringify(order));
+
+  const history = JSON.parse(localStorage.getItem("orderHistory") || "[]");
+  history.unshift(order);
+  localStorage.setItem("orderHistory", JSON.stringify(history));
+}
+
 function syncOrderForm(cart) {
   const form = document.getElementById("orderSubmitForm");
   if (!form) return;
@@ -540,12 +561,18 @@ document.getElementById("orderSummaryText")?.addEventListener("input", event => 
 
 document.getElementById("orderSubmitForm")?.addEventListener("submit", event => {
   const cart = getCart();
+
   if (!cart.length) {
     event.preventDefault();
     showToast("Your cart is empty");
     return;
   }
+
   syncOrderForm(cart);
+
+  saveOrderData();
+
+  localStorage.removeItem(CART_KEY);
 });
 
 document.getElementById("clearCartBtn")?.addEventListener("click", clearCart);
@@ -643,8 +670,39 @@ function renderPriceTable(products) {
 }).join("");
 }
 
+function renderThankYouPage() {
+  const summaryBox = document.getElementById("orderSummaryBox");
+  if (!summaryBox) return;
+
+  const order = JSON.parse(localStorage.getItem("lastOrder") || "null");
+
+  if (!order) {
+    summaryBox.innerHTML = "No recent order found.";
+    return;
+  }
+
+  let html = `
+    <strong>Order ID:</strong> ${order.orderId}<br>
+    <strong>Date:</strong> ${order.date}<br>
+    <strong>Name:</strong> ${order.customerName}<br>
+    <strong>Contact:</strong> ${order.customerContact}<br>
+    <strong>Email:</strong> ${order.customerEmail}<br><br>
+    <strong>Items Ordered:</strong><br>
+  `;
+
+  order.items.forEach(item => {
+    const lineTotal = parsePriceNumber(item.price) * Number(item.qty || 1);
+    html += `• ${item.name} × ${item.qty} — ${peso(lineTotal)}<br>`;
+  });
+
+  html += `<br><strong>Total:</strong> ${peso(order.total)}`;
+
+  summaryBox.innerHTML = html;
+}
+
 updateCartCount();
 renderCartPage();
+renderThankYouPage();
 
 loadProducts().then(products => {
   EBUILD_PRODUCTS = products;
